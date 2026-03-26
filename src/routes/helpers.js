@@ -59,18 +59,39 @@ export function buildNavCounts({ prs, teamMembers }) {
   }
 }
 
+export function groupByJira(prs) {
+  const groups = new Map()
+  for (const pr of prs) {
+    const key = pr.jiraTicket ?? null
+    if (!groups.has(key)) groups.set(key, [])
+    groups.get(key).push(pr)
+  }
+  const result = []
+  const ticketKeys = [...groups.keys()].filter((k) => k !== null).sort()
+  for (const key of ticketKeys) {
+    result.push({ label: key, prs: groups.get(key) })
+  }
+  if (groups.has(null)) {
+    result.push({ label: null, prs: groups.get(null) })
+  }
+  return result
+}
+
 export function buildViewContext(data, basePRs, prs, query, currentPath, title, description, cooldown = false) {
   const repos = buildSelectOptions(basePRs, 'repo')
   const authors = buildSelectOptions(basePRs, 'author')
 
+  const formattedPRs = prs.map((pr) => ({
+    ...pr,
+    ageFormatted: formatAge(pr.createdAt),
+    updatedFormatted: formatAge(pr.updatedAt),
+  }))
+
   return {
     title,
     description,
-    prs: prs.map((pr) => ({
-      ...pr,
-      ageFormatted: formatAge(pr.createdAt),
-      updatedFormatted: formatAge(pr.updatedAt),
-    })),
+    prs: formattedPRs,
+    groups: query.groupBy === 'jira' ? groupByJira(formattedPRs) : null,
     repoItems: [
       { value: '', text: 'All repositories' },
       ...repos.map((r) => ({ value: r, text: r, selected: query.repo === r })),

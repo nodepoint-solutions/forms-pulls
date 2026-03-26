@@ -1,12 +1,38 @@
 {% macro prTable(prs, query, currentPath) %}
+  {% if prs.length == 0 %}
+    <div class="app-empty">
+      <p>No pull requests match the current filters.</p>
+      <p><a href="{{ currentPath }}">Clear filters</a></p>
+    </div>
+  {% else %}
+    {{ _table(prs, query, currentPath) }}
+  {% endif %}
+{% endmacro %}
 
-{% if prs.length == 0 %}
-  <div class="app-empty">
-    <p>No pull requests match the current filters.</p>
-    <p><a href="{{ currentPath }}">Clear filters</a></p>
-  </div>
-{% else %}
+{% macro prTableGrouped(groups, query, currentPath) %}
+  {% if groups.length == 0 %}
+    <div class="app-empty">
+      <p>No pull requests match the current filters.</p>
+      <p><a href="{{ currentPath }}">Clear filters</a></p>
+    </div>
+  {% else %}
+    {% for group in groups %}
+      <div class="app-group">
+        <h2 class="app-group__heading">
+          {% if group.label %}
+            <a class="app-group__ticket" href="https://eaflood.atlassian.net/browse/{{ group.label }}" target="_blank" rel="noopener noreferrer">{{ group.label }}</a>
+          {% else %}
+            <span class="app-group__ticket app-group__ticket--none">No ticket</span>
+          {% endif %}
+          <span class="app-group__count">{{ group.prs.length }} PR{{ "s" if group.prs.length != 1 }}</span>
+        </h2>
+        {{ _table(group.prs, query, currentPath) }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endmacro %}
 
+{% macro _table(prs, query, currentPath) %}
 <div class="app-table-wrap">
   <table class="app-table">
     <thead>
@@ -14,14 +40,14 @@
 
         <th>
           <a class="{{ 'is-sorted' if query.sort == 'title' }}"
-             href="{{ currentPath }}?repo={{ query.repo }}&author={{ query.author }}&sort=title&dir={{ 'asc' if (query.sort == 'title' and query.dir == 'desc') else 'desc' }}">
+             href="{{ currentPath }}?repo={{ query.repo }}&author={{ query.author }}&sort=title&dir={{ 'asc' if (query.sort == 'title' and query.dir == 'desc') else 'desc' }}&groupBy={{ query.groupBy }}">
             Title <span class="app-sort-icon">{{ '↑' if (query.sort == 'title' and query.dir == 'asc') else '↓' }}</span>
           </a>
         </th>
 
         <th>
           <a class="{{ 'is-sorted' if query.sort == 'author' }}"
-             href="{{ currentPath }}?repo={{ query.repo }}&author={{ query.author }}&sort=author&dir={{ 'asc' if (query.sort == 'author' and query.dir == 'desc') else 'desc' }}">
+             href="{{ currentPath }}?repo={{ query.repo }}&author={{ query.author }}&sort=author&dir={{ 'asc' if (query.sort == 'author' and query.dir == 'desc') else 'desc' }}&groupBy={{ query.groupBy }}">
             Author <span class="app-sort-icon">{{ '↑' if (query.sort == 'author' and query.dir == 'asc') else '↓' }}</span>
           </a>
         </th>
@@ -30,14 +56,14 @@
 
         <th>
           <a class="{{ 'is-sorted' if query.sort == 'age' }}"
-             href="{{ currentPath }}?repo={{ query.repo }}&author={{ query.author }}&sort=age&dir={{ 'asc' if (query.sort == 'age' and query.dir == 'desc') else 'desc' }}">
+             href="{{ currentPath }}?repo={{ query.repo }}&author={{ query.author }}&sort=age&dir={{ 'asc' if (query.sort == 'age' and query.dir == 'desc') else 'desc' }}&groupBy={{ query.groupBy }}">
             Age <span class="app-sort-icon">{{ '↑' if (query.sort == 'age' and query.dir == 'asc') else '↓' }}</span>
           </a>
         </th>
 
         <th>
           <a class="{{ 'is-sorted' if query.sort == 'updated' }}"
-             href="{{ currentPath }}?repo={{ query.repo }}&author={{ query.author }}&sort=updated&dir={{ 'asc' if (query.sort == 'updated' and query.dir == 'desc') else 'desc' }}">
+             href="{{ currentPath }}?repo={{ query.repo }}&author={{ query.author }}&sort=updated&dir={{ 'asc' if (query.sort == 'updated' and query.dir == 'desc') else 'desc' }}&groupBy={{ query.groupBy }}">
             Updated <span class="app-sort-icon">{{ '↑' if (query.sort == 'updated' and query.dir == 'asc') else '↓' }}</span>
           </a>
         </th>
@@ -98,6 +124,4 @@
     </tbody>
   </table>
 </div>
-
-{% endif %}
 {% endmacro %}

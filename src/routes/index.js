@@ -5,7 +5,7 @@ export default {
   method: 'GET',
   path: '/',
   async handler(request, h) {
-    const { repo = '', author = '', sort = 'updated', dir = 'desc', cooldown } = request.query
+    const { repo = '', author = '', sort = 'updated', dir = 'desc', groupBy = '', cooldown } = request.query
     const cooldownFlag = cooldown === '1'
     const data = await getPRs()
 
@@ -15,6 +15,6 @@ export default {
 
     const prs = applySort(applyFilters(basePRs, { repo, author }), sort, dir)
 
-    return h.view('index', buildViewContext(data, prs, prs, { repo, author, sort, dir }, '/', 'Needs review - Team PRs', 'Pull requests opened by members of the DEFRA/forms team that need review.', cooldownFlag))
+    return h.view('index', buildViewContext(data, prs, prs, { repo, author, sort, dir, groupBy }, '/', 'Needs review - Team PRs', 'Pull requests opened by members of the DEFRA/forms team that need review.', cooldownFlag))
   },
 }

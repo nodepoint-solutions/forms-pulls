@@ -134,3 +134,34 @@ describe('buildNavCounts', () => {
     expect(counts.stale).toBe(1)
   })
 })
+
+import { groupByJira } from '../../src/routes/helpers.js'
+
+describe('groupByJira', () => {
+  const make = (jiraTicket) => ({ jiraTicket, title: 'PR', number: 1 })
+
+  it('groups PRs by ticket', () => {
+    const prs = [make('DF-1'), make('DF-2'), make('DF-1')]
+    const groups = groupByJira(prs)
+    expect(groups).toHaveLength(2)
+    expect(groups[0].label).toBe('DF-1')
+    expect(groups[0].prs).toHaveLength(2)
+    expect(groups[1].label).toBe('DF-2')
+  })
+
+  it('puts null-ticket PRs last with null label', () => {
+    const prs = [make('DF-1'), make(null)]
+    const groups = groupByJira(prs)
+    expect(groups[groups.length - 1].label).toBeNull()
+  })
+
+  it('sorts ticket groups alphabetically', () => {
+    const prs = [make('DF-20'), make('DF-3'), make('DF-10')]
+    const labels = groupByJira(prs).map((g) => g.label)
+    expect(labels).toEqual(['DF-10', 'DF-20', 'DF-3'])
+  })
+
+  it('returns empty array for empty input', () => {
+    expect(groupByJira([])).toEqual([])
+  })
+})

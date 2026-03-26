@@ -6,11 +6,11 @@ export default {
   path: '/all',
   options: { validate: { options: { allowUnknown: true }, failAction: 'ignore' } },
   async handler(request, h) {
-    const { repo = '', author = '', sort = 'updated', dir = 'desc', cooldown } = request.query
+    const { repo = '', author = '', sort = 'updated', dir = 'desc', groupBy = '', cooldown } = request.query
     const cooldownFlag = cooldown === '1'
     const data = await getPRs()
     const basePRs = data.prs.filter((pr) => !isBot({ type: pr.authorType, login: pr.author }))
     const prs = applySort(applyFilters(basePRs, { repo, author }), sort, dir)
-    return h.view('all', buildViewContext(data, prs, prs, { repo, author, sort, dir }, '/all', 'All PRs', 'All open pull requests across DEFRA/forms team repositories.', cooldownFlag))
+    return h.view('all', buildViewContext(data, prs, prs, { repo, author, sort, dir, groupBy }, '/all', 'All PRs', 'All open pull requests across DEFRA/forms team repositories.', cooldownFlag))
   },
 }

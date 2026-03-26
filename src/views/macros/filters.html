@@ -37,6 +37,14 @@
     </select>
   </div>
 
+  <div class="app-filter-field">
+    <label class="app-filter-label" for="groupBy">Group by</label>
+    <select id="groupBy" name="groupBy" class="app-select">
+      <option value=""{% if not query.groupBy %} selected{% endif %}>None</option>
+      <option value="jira"{% if query.groupBy == "jira" %} selected{% endif %}>Jira ticket</option>
+    </select>
+  </div>
+
   <div class="app-filter-actions">
     <button type="submit" class="app-btn app-btn--primary">Apply</button>
     {% if query.repo or query.author %}

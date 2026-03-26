@@ -5,6 +5,13 @@ import { fetchAllPages } from './github.js'
 const FOURTEEN_DAYS_MS = 14 * 24 * 60 * 60 * 1000
 const ORG = 'DEFRA'
 const TEAM = 'forms'
+const JIRA_RE = /\bDF-\d+\b/gi
+
+export function extractJiraTicket(rawPR) {
+  const text = [rawPR.title ?? '', rawPR.body ?? '', rawPR.head?.ref ?? ''].join(' ')
+  const match = text.match(JIRA_RE)
+  return match ? match[0].toUpperCase() : null
+}
 
 export function isBot(user) {
   return user.type === 'Bot' || user.login.endsWith('[bot]')
@@ -64,6 +71,7 @@ export function formatPR(rawPR, rawReviews, rawCommits) {
     isReviewed: reviews.length > 0,
     latestReviewAt,
     hasUnreviewedCommits,
+    jiraTicket: extractJiraTicket(rawPR),
   }
 }
 
@@ -77,10 +85,10 @@ export async function runWithConcurrency(items, fn, concurrency) {
   return results
 }
 
-export async function getPRs() {
+export async function getPRs({ force = false } = {}) {
   const { githubToken, cacheTtlMs } = config
 
-  if (!cache.isExpired(cacheTtlMs)) {
+  if (!force && !cache.isExpired(cacheTtlMs)) {
     return cache.get()
   }
 

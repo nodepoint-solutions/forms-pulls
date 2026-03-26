@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% from "macros/filters.html" import filterForm %}
-{% from "macros/pr-table.html" import prTable %}
+{% from "macros/pr-table.html" import prTable, prTableGrouped %}
 
 {% block content %}
   <div class="app-page-header">
@@ -19,5 +19,5 @@
 
   <p class="app-table-meta">Showing <strong>{{ prs.length }}</strong> pull request{{ "s" if prs.length != 1 }}</p>
 
-  {{ prTable(prs, query, "/all") }}
+  {% if groups %}{{ prTableGrouped(groups, query, "/all") }}{% else %}{{ prTable(prs, query, "/all") }}{% endif %}
 {% endblock %}

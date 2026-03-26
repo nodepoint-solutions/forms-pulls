@@ -155,3 +155,23 @@ describe('runWithConcurrency', () => {
     expect(results).toEqual([2, 4, 6, 8, 10])
   })
 })
+
+import { extractJiraTicket } from '../../src/services/prs.js'
+
+describe('extractJiraTicket', () => {
+  it('extracts DF- ticket from title', () => {
+    expect(extractJiraTicket({ title: 'DF-123 fix the thing', body: null, head: { ref: 'main' } })).toBe('DF-123')
+  })
+  it('extracts from body when not in title', () => {
+    expect(extractJiraTicket({ title: 'fix bug', body: 'relates to df-456', head: { ref: 'main' } })).toBe('DF-456')
+  })
+  it('extracts from branch name', () => {
+    expect(extractJiraTicket({ title: 'fix', body: null, head: { ref: 'feature/df-789-thing' } })).toBe('DF-789')
+  })
+  it('returns null when no ticket found', () => {
+    expect(extractJiraTicket({ title: 'no ticket here', body: null, head: { ref: 'main' } })).toBeNull()
+  })
+  it('handles missing body and head gracefully', () => {
+    expect(extractJiraTicket({ title: 'DF-999 test' })).toBe('DF-999')
+  })
+})

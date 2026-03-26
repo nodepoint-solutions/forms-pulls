@@ -510,3 +510,37 @@ table.app-table {
   line-height: 1.7;
   margin-bottom: 8px;
 }
+
+/* ============================================================
+   GROUPED VIEW
+   ============================================================ */
+.app-group { margin-bottom: 40px; }
+
+.app-group__heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.app-group__ticket {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+  background: var(--blue-bg);
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+.app-group__ticket:hover { color: var(--accent-hover); text-decoration: none; }
+.app-group__ticket--none {
+  color: var(--text-subtle);
+  background: var(--grey-bg);
+}
+
+.app-group__count {
+  font-size: 12px;
+  color: var(--text-subtle);
+  font-family: var(--mono);
+}
