@@ -1,6 +1,6 @@
 import { config } from '../config.js'
 import * as cache from './cache.js'
-import { fetchAllPages, fetchWithRetry } from './github.js'
+import { fetchAllPages } from './github.js'
 
 const FOURTEEN_DAYS_MS = 14 * 24 * 60 * 60 * 1000
 const ORG = 'DEFRA'
@@ -109,8 +109,8 @@ export async function getPRs() {
     async (rawPR) => {
       const repoName = rawPR.base.repo.name
       const [reviews, commits] = await Promise.all([
-        fetchWithRetry(`/repos/${ORG}/${repoName}/pulls/${rawPR.number}/reviews`, githubToken),
-        fetchWithRetry(`/repos/${ORG}/${repoName}/pulls/${rawPR.number}/commits`, githubToken),
+        fetchAllPages(`/repos/${ORG}/${repoName}/pulls/${rawPR.number}/reviews?per_page=100`, githubToken),
+        fetchAllPages(`/repos/${ORG}/${repoName}/pulls/${rawPR.number}/commits?per_page=100`, githubToken),
       ])
       return formatPR(rawPR, reviews ?? [], commits ?? [])
     },

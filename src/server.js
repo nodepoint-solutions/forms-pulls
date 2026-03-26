@@ -15,7 +15,6 @@ const govukPath = join(__dirname, '../node_modules/govuk-frontend/dist')
 export async function createServer() {
   const server = hapi.server({
     port: config.port,
-    host: '0.0.0.0',
     router: { stripTrailingSlash: true },
     routes: {
       security: { xss: 'enabled', noSniff: true, xframe: true },
