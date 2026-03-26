@@ -1,105 +1,100 @@
 <!DOCTYPE html>
-<html lang="en" class="govuk-template">
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>{% if title %}{{ title }} - {% endif %}PR Viewer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{% if title %}{{ title }} — {% endif %}PR Viewer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <link rel="icon" sizes="48x48" href="/public/assets/images/favicon.ico">
-  <link rel="icon" sizes="any" href="/public/assets/images/favicon.svg" type="image/svg+xml">
-  <link rel="mask-icon" href="/public/assets/images/govuk-mask-icon.svg" color="#0b0c0c">
-  <link rel="apple-touch-icon" href="/public/assets/images/govuk-apple-touch-icon.png">
-  <link rel="stylesheet" href="/public/govuk-frontend.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/application.css">
 </head>
-<body class="govuk-template__body">
-  <script>document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');</script>
+<body>
+  <a href="#main-content" class="app-skip-link">Skip to main content</a>
 
-  {% from "govuk/components/skip-link/macro.njk" import govukSkipLink %}
-  {% from "govuk/components/tag/macro.njk" import govukTag %}
-  {% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
-  {{ govukSkipLink({ href: "#main-content", text: "Skip to main content" }) }}
+  <div class="app-shell">
 
-  {% from "govuk/components/header/macro.njk" import govukHeader %}
-  {{ govukHeader({
-    homepageUrl: "/",
-    serviceName: "PR Viewer",
-    serviceUrl: "/"
-  }) }}
-
-  <div class="govuk-width-container">
-    <main class="govuk-main-wrapper" id="main-content">
-      <div class="govuk-grid-row">
-
-        <div class="govuk-grid-column-one-quarter">
-          <nav class="app-subnav" aria-label="PR categories">
-            <ul class="app-subnav__list">
-
-              <li class="app-subnav__item app-subnav__item--priority{% if currentPath == '/needs-re-review' %} app-subnav__item--active{% endif %}">
-                <a class="govuk-link govuk-link--no-visited-state app-subnav__link" href="/needs-re-review">
-                  <span>Needs re-review</span>
-                  {% if navCounts %}
-                    {{ govukTag({ text: navCounts.needsReReview, classes: "govuk-tag--red app-count" }) }}
-                  {% endif %}
-                </a>
-              </li>
-
-              <li class="app-subnav__item{% if currentPath == '/unreviewed' %} app-subnav__item--active{% endif %}">
-                <a class="govuk-link govuk-link--no-visited-state app-subnav__link" href="/unreviewed">
-                  <span>Unreviewed</span>
-                  {% if navCounts %}
-                    {{ govukTag({ text: navCounts.unreviewed, classes: "govuk-tag--orange app-count" }) }}
-                  {% endif %}
-                </a>
-              </li>
-
-              <li class="app-subnav__item{% if currentPath == '/' %} app-subnav__item--active{% endif %}">
-                <a class="govuk-link govuk-link--no-visited-state app-subnav__link" href="/">
-                  <span>Team PRs</span>
-                  {% if navCounts %}
-                    {{ govukTag({ text: navCounts.team, classes: "govuk-tag--blue app-count" }) }}
-                  {% endif %}
-                </a>
-              </li>
-
-              <li class="app-subnav__item{% if currentPath == '/all' %} app-subnav__item--active{% endif %}">
-                <a class="govuk-link govuk-link--no-visited-state app-subnav__link" href="/all">
-                  <span>All PRs</span>
-                  {% if navCounts %}
-                    {{ govukTag({ text: navCounts.all, classes: "govuk-tag--grey app-count" }) }}
-                  {% endif %}
-                </a>
-              </li>
-
-              <li class="app-subnav__item{% if currentPath == '/stale' %} app-subnav__item--active{% endif %}">
-                <a class="govuk-link govuk-link--no-visited-state app-subnav__link" href="/stale">
-                  <span>Stale</span>
-                  {% if navCounts %}
-                    {{ govukTag({ text: navCounts.stale, classes: "govuk-tag--yellow app-count" }) }}
-                  {% endif %}
-                </a>
-              </li>
-
-            </ul>
-          </nav>
-        </div>
-
-        <div class="govuk-grid-column-three-quarters">
-          {% if cooldown %}
-            {{ govukNotificationBanner({
-              type: "info",
-              titleText: "Refresh too soon",
-              html: "<p class=\"govuk-body\">The data was updated recently. Please wait 30 seconds before refreshing again.</p>"
-            }) }}
-          {% endif %}
-
-          {% block content %}{% endblock %}
-        </div>
-
+    <aside class="app-sidebar">
+      <div class="app-sidebar__header">
+        <a href="/" class="app-brand">
+          <svg class="app-brand__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true">
+            <path d="M5.45 5.154A4.25 4.25 0 0 0 9.25 7.5h1.378a2.251 2.251 0 1 1 0 1.5H9.25A5.734 5.734 0 0 1 5 7.123v3.505a2.25 2.25 0 1 1-1.5 0V5.372a2.25 2.25 0 1 1 1.95-.218ZM4.25 13.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm8.5-4.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM5 3.25a.75.75 0 1 0 0 .005V3.25Z"/>
+          </svg>
+          <span>PR Viewer</span>
+        </a>
+        <span class="app-brand__sub">DEFRA / forms</span>
       </div>
-    </main>
-  </div>
 
-  <script type="module" src="/public/govuk-frontend.min.js"></script>
+      <nav class="app-nav" aria-label="PR categories">
+        <ul class="app-nav__list">
+
+          <li>
+            <a href="/needs-re-review" class="app-nav__link app-nav__link--urgent{% if currentPath == '/needs-re-review' %} is-active{% endif %}">
+              <svg class="app-nav__icon" viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true">
+                <path d="M2.343 13.657A8 8 0 1 1 13.658 2.343 8 8 0 0 1 2.343 13.657ZM6.03 4.97a.75.75 0 0 0-1.06 1.06L6.94 8 4.97 9.97a.75.75 0 1 0 1.06 1.06L8 9.06l1.97 1.97a.75.75 0 1 0 1.06-1.06L9.06 8l1.97-1.97a.75.75 0 0 0-1.06-1.06L8 6.94 6.03 4.97Z"/>
+              </svg>
+              <span class="app-nav__label">Needs re-review</span>
+              {% if navCounts %}<span class="app-badge app-badge--red">{{ navCounts.needsReReview }}</span>{% endif %}
+            </a>
+          </li>
+
+          <li>
+            <a href="/" class="app-nav__link{% if currentPath == '/' %} is-active{% endif %}">
+              <svg class="app-nav__icon" viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true">
+                <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm4.879-2.773 4.264 2.559a.25.25 0 0 1 0 .428l-4.264 2.559A.25.25 0 0 1 6 10.559V5.442a.25.25 0 0 1 .379-.215Z"/>
+              </svg>
+              <span class="app-nav__label">Needs review - Team PRs</span>
+              {% if navCounts %}<span class="app-badge app-badge--blue">{{ navCounts.team }}</span>{% endif %}
+            </a>
+          </li>
+
+          <li>
+            <a href="/unreviewed" class="app-nav__link{% if currentPath == '/unreviewed' %} is-active{% endif %}">
+              <svg class="app-nav__icon" viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true">
+                <path d="M1 2.75C1 1.784 1.784 1 2.75 1h10.5c.966 0 1.75.784 1.75 1.75v7.5A1.75 1.75 0 0 1 13.25 12H9.06l-2.573 2.573A1.458 1.458 0 0 1 4 13.543V12H2.75A1.75 1.75 0 0 1 1 10.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h4.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"/>
+              </svg>
+              <span class="app-nav__label">Needs review - All PRs</span>
+              {% if navCounts %}<span class="app-badge app-badge--orange">{{ navCounts.unreviewed }}</span>{% endif %}
+            </a>
+          </li>
+
+          <li>
+            <a href="/all" class="app-nav__link{% if currentPath == '/all' %} is-active{% endif %}">
+              <svg class="app-nav__icon" viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true">
+                <path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v12.5A1.75 1.75 0 0 1 14.25 16H1.75A1.75 1.75 0 0 1 0 14.25ZM1.75 1.5a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25V1.75a.25.25 0 0 0-.25-.25Zm7 5.75a.75.75 0 0 1 0 1.5h-5.5a.75.75 0 0 1 0-1.5Zm3-3a.75.75 0 0 1 0 1.5H3.25a.75.75 0 0 1 0-1.5Zm0 6a.75.75 0 0 1 0 1.5H3.25a.75.75 0 0 1 0-1.5Z"/>
+              </svg>
+              <span class="app-nav__label">All PRs</span>
+              {% if navCounts %}<span class="app-badge app-badge--grey">{{ navCounts.all }}</span>{% endif %}
+            </a>
+          </li>
+
+          <li>
+            <a href="/stale" class="app-nav__link{% if currentPath == '/stale' %} is-active{% endif %}">
+              <svg class="app-nav__icon" viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true">
+                <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm7-3.25v2.992l2.028.812a.75.75 0 0 1-.557 1.392l-2.5-1A.751.751 0 0 1 7 8.25v-3.5a.75.75 0 0 1 1.5 0Z"/>
+              </svg>
+              <span class="app-nav__label">Stale</span>
+              {% if navCounts %}<span class="app-badge app-badge--yellow">{{ navCounts.stale }}</span>{% endif %}
+            </a>
+          </li>
+
+        </ul>
+      </nav>
+    </aside>
+
+    <div class="app-content">
+      {% if cooldown %}
+        <div class="app-alert app-alert--info">
+          Data refreshed recently — please wait 30 seconds before refreshing again.
+        </div>
+      {% endif %}
+
+      <main id="main-content" class="app-main">
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+
+  </div>
 </body>
 </html>

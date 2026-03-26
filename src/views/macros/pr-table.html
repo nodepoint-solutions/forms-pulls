@@ -1,91 +1,103 @@
 {% macro prTable(prs, query, currentPath) %}
-{% from "govuk/components/tag/macro.njk" import govukTag %}
 
 {% if prs.length == 0 %}
-  {% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
-  {{ govukInsetText({
-    text: "No pull requests match the current filters."
-  }) }}
-  <p class="govuk-body"><a class="govuk-link" href="{{ currentPath }}">Clear filters</a></p>
+  <div class="app-empty">
+    <p>No pull requests match the current filters.</p>
+    <p><a href="{{ currentPath }}">Clear filters</a></p>
+  </div>
 {% else %}
 
-<table class="govuk-table">
-  <thead class="govuk-table__head">
-    <tr class="govuk-table__row">
+<div class="app-table-wrap">
+  <table class="app-table">
+    <thead>
+      <tr>
 
-      <th scope="col" class="govuk-table__header">
-        <a class="{{ 'app-sort-link app-sort-link--active' if query.sort == 'title' else 'app-sort-link' }} govuk-link govuk-link--no-visited-state" href="{{ currentPath }}?repo={{ query.repo }}&author={{ query.author }}&sort=title&dir={{ 'asc' if (query.sort == 'title' and query.dir == 'desc') else 'desc' }}">Title</a>
-      </th>
+        <th>
+          <a class="{{ 'is-sorted' if query.sort == 'title' }}"
+             href="{{ currentPath }}?repo={{ query.repo }}&author={{ query.author }}&sort=title&dir={{ 'asc' if (query.sort == 'title' and query.dir == 'desc') else 'desc' }}">
+            Title <span class="app-sort-icon">{{ '↑' if (query.sort == 'title' and query.dir == 'asc') else '↓' }}</span>
+          </a>
+        </th>
 
-      <th scope="col" class="govuk-table__header">
-        <a class="{{ 'app-sort-link app-sort-link--active' if query.sort == 'author' else 'app-sort-link' }} govuk-link govuk-link--no-visited-state" href="{{ currentPath }}?repo={{ query.repo }}&author={{ query.author }}&sort=author&dir={{ 'asc' if (query.sort == 'author' and query.dir == 'desc') else 'desc' }}">Author</a>
-      </th>
+        <th>
+          <a class="{{ 'is-sorted' if query.sort == 'author' }}"
+             href="{{ currentPath }}?repo={{ query.repo }}&author={{ query.author }}&sort=author&dir={{ 'asc' if (query.sort == 'author' and query.dir == 'desc') else 'desc' }}">
+            Author <span class="app-sort-icon">{{ '↑' if (query.sort == 'author' and query.dir == 'asc') else '↓' }}</span>
+          </a>
+        </th>
 
-      <th scope="col" class="govuk-table__header">Repository</th>
+        <th>Repo</th>
 
-      <th scope="col" class="govuk-table__header">
-        <a class="{{ 'app-sort-link app-sort-link--active' if query.sort == 'age' else 'app-sort-link' }} govuk-link govuk-link--no-visited-state" href="{{ currentPath }}?repo={{ query.repo }}&author={{ query.author }}&sort=age&dir={{ 'asc' if (query.sort == 'age' and query.dir == 'desc') else 'desc' }}">Age</a>
-      </th>
+        <th>
+          <a class="{{ 'is-sorted' if query.sort == 'age' }}"
+             href="{{ currentPath }}?repo={{ query.repo }}&author={{ query.author }}&sort=age&dir={{ 'asc' if (query.sort == 'age' and query.dir == 'desc') else 'desc' }}">
+            Age <span class="app-sort-icon">{{ '↑' if (query.sort == 'age' and query.dir == 'asc') else '↓' }}</span>
+          </a>
+        </th>
 
-      <th scope="col" class="govuk-table__header">
-        <a class="{{ 'app-sort-link app-sort-link--active' if query.sort == 'updated' else 'app-sort-link' }} govuk-link govuk-link--no-visited-state" href="{{ currentPath }}?repo={{ query.repo }}&author={{ query.author }}&sort=updated&dir={{ 'asc' if (query.sort == 'updated' and query.dir == 'desc') else 'desc' }}">Updated</a>
-      </th>
+        <th>
+          <a class="{{ 'is-sorted' if query.sort == 'updated' }}"
+             href="{{ currentPath }}?repo={{ query.repo }}&author={{ query.author }}&sort=updated&dir={{ 'asc' if (query.sort == 'updated' and query.dir == 'desc') else 'desc' }}">
+            Updated <span class="app-sort-icon">{{ '↑' if (query.sort == 'updated' and query.dir == 'asc') else '↓' }}</span>
+          </a>
+        </th>
 
-      <th scope="col" class="govuk-table__header">Reviews</th>
-      <th scope="col" class="govuk-table__header">Status</th>
-    </tr>
-  </thead>
+        <th>Reviews</th>
+        <th>Flags</th>
 
-  <tbody class="govuk-table__body">
-    {% for pr in prs %}
-    <tr class="govuk-table__row">
+      </tr>
+    </thead>
 
-      <td class="govuk-table__cell">
-        <a class="govuk-link" href="{{ pr.url }}" target="_blank" rel="noopener noreferrer">
-          {{ pr.title }}
-          <span class="govuk-visually-hidden">(opens in new tab)</span>
-        </a>
-        <br>
-        <span class="govuk-body-s govuk-hint">#{{ pr.number }}</span>
-      </td>
+    <tbody>
+      {% for pr in prs %}
+      <tr>
 
-      <td class="govuk-table__cell">{{ pr.author }}</td>
+        <td class="app-pr-title">
+          <a href="{{ pr.url }}" target="_blank" rel="noopener noreferrer">{{ pr.title }}</a>
+          <span class="app-pr-number">#{{ pr.number }}</span>
+        </td>
 
-      <td class="govuk-table__cell govuk-body-s">{{ pr.repo }}</td>
+        <td class="app-mono">{{ pr.author }}</td>
 
-      <td class="govuk-table__cell govuk-body-s" title="{{ pr.createdAt }}">{{ pr.ageFormatted }}</td>
+        <td class="app-mono">{{ pr.repo }}</td>
 
-      <td class="govuk-table__cell govuk-body-s" title="{{ pr.updatedAt }}">{{ pr.updatedFormatted }}</td>
+        <td class="app-mono" title="{{ pr.createdAt }}">{{ pr.ageFormatted }}</td>
 
-      <td class="govuk-table__cell govuk-body-s">
-        {% if pr.reviewCount == 0 %}
-          <span class="govuk-hint">None</span>
-        {% else %}
-          {{ pr.reviewCount }} ·
-          {% if pr.reviewState == "APPROVED" %}
-            {{ govukTag({ text: "Approved", classes: "govuk-tag--green" }) }}
-          {% elif pr.reviewState == "CHANGES_REQUESTED" %}
-            {{ govukTag({ text: "Changes requested", classes: "govuk-tag--red" }) }}
-          {% elif pr.reviewState == "COMMENTED" %}
-            {{ govukTag({ text: "Commented", classes: "govuk-tag--blue" }) }}
+        <td class="app-mono" title="{{ pr.updatedAt }}">{{ pr.updatedFormatted }}</td>
+
+        <td>
+          {% if pr.reviewCount == 0 %}
+            <span class="app-no-reviews">—</span>
           {% else %}
-            {{ govukTag({ text: "Dismissed", classes: "govuk-tag--grey" }) }}
+            <div class="app-review-cell">
+              <span class="app-review-count">{{ pr.reviewCount }} review{{ 's' if pr.reviewCount != 1 }}</span>
+              {% if pr.reviewState == "APPROVED" %}
+                <span class="app-pill app-pill--green">Approved</span>
+              {% elif pr.reviewState == "CHANGES_REQUESTED" %}
+                <span class="app-pill app-pill--red">Changes requested</span>
+              {% elif pr.reviewState == "COMMENTED" %}
+                <span class="app-pill app-pill--blue">Commented</span>
+              {% else %}
+                <span class="app-pill app-pill--grey">Dismissed</span>
+              {% endif %}
+            </div>
           {% endif %}
-        {% endif %}
-      </td>
+        </td>
 
-      <td class="govuk-table__cell">
-        {% if pr.draft %}
-          {{ govukTag({ text: "Draft", classes: "govuk-tag--grey" }) }}
-        {% endif %}
-        {% if pr.isStale %}
-          {{ govukTag({ text: "Stale", classes: "govuk-tag--orange" }) }}
-        {% endif %}
-      </td>
+        <td>
+          {% if pr.draft %}
+            <span class="app-pill app-pill--grey">Draft</span>
+          {% endif %}
+          {% if pr.isStale %}
+            <span class="app-pill app-pill--orange">Stale</span>
+          {% endif %}
+        </td>
 
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
 {% endif %}
 {% endmacro %}
