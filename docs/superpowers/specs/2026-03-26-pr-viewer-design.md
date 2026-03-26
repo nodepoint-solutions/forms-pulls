@@ -39,7 +39,7 @@ src/
   routes/
     index.js               — GET /                (team PRs, no bots)
     all.js                 — GET /all             (all PRs including bots)
-    stale.js               — GET /stale           (open > 14 days)
+    stale.js               — GET /stale           (inactive > 14 days)
     unreviewed.js          — GET /unreviewed      (zero human reviews)
     needs-re-review.js     — GET /needs-re-review (reviewed, commits since)
     refresh.js             — POST /refresh        (manual cache bust)
@@ -63,18 +63,23 @@ src/
 ### PAT Scopes Required
 
 - `read:org` — to read team membership and team repos
-- `repo` — to read pull requests and reviews
+- `repo` — to read pull requests and reviews on private repositories
+
+> Note: `repo` is a broad scope. A fine-grained PAT scoped to specific DEFRA repositories is preferred if the GitHub organisation supports it.
 
 ### Cache Refresh Sequence
 
 On each cache miss (or manual refresh), `prs.js` executes:
 
-1. `GET /orgs/DEFRA/teams/forms/members` — team member logins (used for team filter and bot exclusion)
-2. `GET /orgs/DEFRA/teams/forms/repos` — paginated list of team repos
+1. `GET /orgs/DEFRA/teams/forms/members` — team member logins
+2. `GET /orgs/DEFRA/teams/forms/repos` — paginated list of repos the team has been explicitly granted access to
+   > Note: this endpoint returns only repos directly associated with the `forms` team. Repos shared via parent teams or org-wide visibility are not returned. Verify coverage against the actual DEFRA team structure after deployment.
 3. For each repo in parallel: `GET /repos/DEFRA/{repo}/pulls?state=open&per_page=100`
-4. For each open PR in parallel (rate-limit-aware batching):
+   > Note: GitHub caps this at 100 results per page. If a repo has more than 100 open PRs, add pagination. For the DEFRA/forms context this limit is expected to be acceptable.
+4. For each open PR, in parallel with a concurrency cap of 10:
    - `GET /repos/DEFRA/{repo}/pulls/{n}/reviews`
    - `GET /repos/DEFRA/{repo}/pulls/{n}/commits`
+   - On HTTP 429 or 403 (secondary rate limit): exponential backoff starting at 1s, up to 3 retries.
 
 ### Bot Detection
 
@@ -89,28 +94,39 @@ A user is a bot if `user.type === 'Bot'` OR `user.login` ends with `[bot]`.
   prs: [
     {
       // From GitHub API
-      number, title, url, repo, author, authorType,
+      number, title, url,
+      repo,                // short repo name (e.g. "forms-runner") — used in filter params
+      author, authorType,
       createdAt, updatedAt, draft,
 
       // Enriched
       reviews,             // non-bot reviews only, chronological
-      commits,             // all commits, chronological
+      commits,             // non-merge commits only, chronological
 
       // Computed
-      isStale,             // createdAt > 14 days ago
+      isStale,             // updatedAt > 14 days ago (inactive, not just old)
       isReviewed,          // reviews.length > 0
-      latestReviewAt,      // Date of most recent non-bot review, or null
-      hasUnreviewedCommits // commits exist after latestReviewAt (merge commits excluded)
+      latestReviewAt,      // max(review.submitted_at) across all non-bot reviews, or null
+                           // simplified: uses the most recent review regardless of type
+      hasUnreviewedCommits // any non-merge commit.date > latestReviewAt
     }
   ]
 }
 ```
 
+All views and the side nav counts are served from the same single cache snapshot, ensuring counts and table data are always consistent.
+
 **Cache TTL:** `CACHE_TTL_MS` env var, defaults to 5 minutes.
 
-**Merge commit exclusion:** A commit is a merge commit if `commit.parents.length > 1`. These are excluded when computing `hasUnreviewedCommits`.
+**Merge commit exclusion:** A commit is a merge commit if `commit.parents.length > 1`. These are excluded when computing `hasUnreviewedCommits` and from the `commits` array in the cache.
 
-**Review state per reviewer:** The most recent review state per reviewer is used (matching GitHub's own behaviour).
+**Review state per reviewer:** For display purposes, the most recent review state per reviewer is used (matching GitHub's own behaviour). For `latestReviewAt`, the maximum `submitted_at` timestamp across all non-bot reviews is used regardless of review type.
+
+**Cached draft state:** The `draft` field reflects the PR state at cache time. A PR promoted from draft since the last cache refresh will still show the Draft status tag until the cache is next refreshed.
+
+### `/refresh` Cooldown
+
+`POST /refresh` busts the cache. To prevent PAT rate limit exhaustion from rapid repeated requests, the endpoint refuses to re-fetch if `fetchedAt` is less than 30 seconds ago, returning a GOV.UK notification banner explaining the cooldown.
 
 ---
 
@@ -118,7 +134,7 @@ A user is a bot if `user.type === 'Bot'` OR `user.login` ends with `[bot]`.
 
 ### Side Navigation
 
-Rendered on every page with live counts from cached data. Order reflects priority:
+Rendered on every page with live counts from the same cache snapshot. Order reflects priority:
 
 ```
 Needs re-review     (N)   →  /needs-re-review   [highlighted]
@@ -148,12 +164,21 @@ Every list page includes:
 | Column | Notes |
 |---|---|
 | Title | Links to GitHub PR |
-| Repository | Repo short name |
+| Repository | Short repo name |
 | Author | GitHub login |
-| Age | Human-readable (e.g. "3 days") |
-| Last updated | Human-readable |
+| Age | Human-readable (see Age Formatting below) |
+| Last updated | Human-readable (same format) |
 | Reviews | Count + latest state |
 | Status | GOV.UK tags: Draft, Stale, Changes requested, Approved |
+
+### Age Formatting
+
+| Duration | Format |
+|---|---|
+| < 1 hour | "X minutes ago" |
+| < 24 hours | "X hours ago" |
+| < 14 days | "X days ago" |
+| ≥ 14 days | "X weeks ago" |
 
 ### Column Sort Links
 
@@ -173,9 +198,9 @@ No author filter. Includes bots and external contributors.
 
 ### Stale (`/stale`)
 
-`Date.now() - pr.createdAt > 14 * 24 * 60 * 60 * 1000`
+`Date.now() - pr.updatedAt > 14 * 24 * 60 * 60 * 1000`
 
-Also displayed as a status tag on all other views.
+A PR is stale if it has had no activity (commits, reviews, comments, or labels) for more than 14 days. Also displayed as a status tag on all other views.
 
 ### Unreviewed (`/unreviewed`)
 
