@@ -12,13 +12,41 @@ export function getNextPage(linkHeader) {
   return match ? match[1] : null
 }
 
-export async function fetchAllPages(path, token) {
+export async function fetchAllPages(path, token, retries = 3, initialDelay = 1000) {
   const results = []
   let url = `${BASE_URL}${path}`
 
   while (url) {
-    const res = await fetch(url, { headers: HEADERS(token) })
-    if (!res.ok) throw new Error(`GitHub API error: ${res.status} ${path}`)
+    let res
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      res = await fetch(url, { headers: HEADERS(token) })
+
+      if (res.status === 429 || res.status === 403) {
+        const body = await res.json().catch(() => ({}))
+        const resetAt = res.headers.get('x-ratelimit-reset')
+        const retryAfter = res.headers.get('retry-after')
+        const delay = retryAfter
+          ? parseInt(retryAfter, 10) * 1000
+          : resetAt
+            ? Math.max(0, parseInt(resetAt, 10) * 1000 - Date.now()) + 1000
+            : initialDelay * Math.pow(2, attempt)
+
+        if (attempt === retries) {
+          throw new Error(`GitHub API ${res.status} on ${path}: ${body.message ?? 'rate limited'}`)
+        }
+        console.warn(`GitHub API ${res.status} on ${path} — retrying in ${Math.round(delay / 1000)}s (attempt ${attempt + 1}/${retries}): ${body.message ?? ''}`)
+        await sleep(delay)
+        continue
+      }
+
+      break
+    }
+
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}))
+      throw new Error(`GitHub API error ${res.status} on ${path}: ${body.message ?? res.statusText}`)
+    }
+
     const data = await res.json()
     results.push(...data)
     url = getNextPage(res.headers.get('link'))

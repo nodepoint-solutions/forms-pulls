@@ -62,9 +62,11 @@ describe('fetchAllPages', () => {
     mockFetch.mockResolvedValueOnce({
       ok: false,
       status: 404,
+      statusText: 'Not Found',
+      json: async () => ({ message: 'Not Found' }),
       headers: { get: () => null },
     })
-    await expect(fetchAllPages('/missing', TOKEN)).rejects.toThrow('GitHub API error: 404')
+    await expect(fetchAllPages('/missing', TOKEN)).rejects.toThrow('GitHub API error 404')
   })
 })
 
