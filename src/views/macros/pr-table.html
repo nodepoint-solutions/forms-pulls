@@ -1,0 +1,91 @@
+{% macro prTable(prs, query, currentPath) %}
+{% from "govuk/components/tag/macro.njk" import govukTag %}
+
+{% if prs.length == 0 %}
+  {% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
+  {{ govukInsetText({
+    text: "No pull requests match the current filters."
+  }) }}
+  <p class="govuk-body"><a class="govuk-link" href="{{ currentPath }}">Clear filters</a></p>
+{% else %}
+
+<table class="govuk-table">
+  <thead class="govuk-table__head">
+    <tr class="govuk-table__row">
+
+      <th scope="col" class="govuk-table__header">
+        <a class="{{ 'app-sort-link app-sort-link--active' if query.sort == 'title' else 'app-sort-link' }} govuk-link govuk-link--no-visited-state" href="{{ currentPath }}?repo={{ query.repo }}&author={{ query.author }}&sort=title&dir={{ 'asc' if (query.sort == 'title' and query.dir == 'desc') else 'desc' }}">Title</a>
+      </th>
+
+      <th scope="col" class="govuk-table__header">
+        <a class="{{ 'app-sort-link app-sort-link--active' if query.sort == 'author' else 'app-sort-link' }} govuk-link govuk-link--no-visited-state" href="{{ currentPath }}?repo={{ query.repo }}&author={{ query.author }}&sort=author&dir={{ 'asc' if (query.sort == 'author' and query.dir == 'desc') else 'desc' }}">Author</a>
+      </th>
+
+      <th scope="col" class="govuk-table__header">Repository</th>
+
+      <th scope="col" class="govuk-table__header">
+        <a class="{{ 'app-sort-link app-sort-link--active' if query.sort == 'age' else 'app-sort-link' }} govuk-link govuk-link--no-visited-state" href="{{ currentPath }}?repo={{ query.repo }}&author={{ query.author }}&sort=age&dir={{ 'asc' if (query.sort == 'age' and query.dir == 'desc') else 'desc' }}">Age</a>
+      </th>
+
+      <th scope="col" class="govuk-table__header">
+        <a class="{{ 'app-sort-link app-sort-link--active' if query.sort == 'updated' else 'app-sort-link' }} govuk-link govuk-link--no-visited-state" href="{{ currentPath }}?repo={{ query.repo }}&author={{ query.author }}&sort=updated&dir={{ 'asc' if (query.sort == 'updated' and query.dir == 'desc') else 'desc' }}">Updated</a>
+      </th>
+
+      <th scope="col" class="govuk-table__header">Reviews</th>
+      <th scope="col" class="govuk-table__header">Status</th>
+    </tr>
+  </thead>
+
+  <tbody class="govuk-table__body">
+    {% for pr in prs %}
+    <tr class="govuk-table__row">
+
+      <td class="govuk-table__cell">
+        <a class="govuk-link" href="{{ pr.url }}" target="_blank" rel="noopener noreferrer">
+          {{ pr.title }}
+          <span class="govuk-visually-hidden">(opens in new tab)</span>
+        </a>
+        <br>
+        <span class="govuk-body-s govuk-hint">#{{ pr.number }}</span>
+      </td>
+
+      <td class="govuk-table__cell">{{ pr.author }}</td>
+
+      <td class="govuk-table__cell govuk-body-s">{{ pr.repo }}</td>
+
+      <td class="govuk-table__cell govuk-body-s" title="{{ pr.createdAt }}">{{ pr.ageFormatted }}</td>
+
+      <td class="govuk-table__cell govuk-body-s" title="{{ pr.updatedAt }}">{{ pr.updatedFormatted }}</td>
+
+      <td class="govuk-table__cell govuk-body-s">
+        {% if pr.reviewCount == 0 %}
+          <span class="govuk-hint">None</span>
+        {% else %}
+          {{ pr.reviewCount }} ·
+          {% if pr.reviewState == "APPROVED" %}
+            {{ govukTag({ text: "Approved", classes: "govuk-tag--green" }) }}
+          {% elif pr.reviewState == "CHANGES_REQUESTED" %}
+            {{ govukTag({ text: "Changes requested", classes: "govuk-tag--red" }) }}
+          {% elif pr.reviewState == "COMMENTED" %}
+            {{ govukTag({ text: "Commented", classes: "govuk-tag--blue" }) }}
+          {% else %}
+            {{ govukTag({ text: "Dismissed", classes: "govuk-tag--grey" }) }}
+          {% endif %}
+        {% endif %}
+      </td>
+
+      <td class="govuk-table__cell">
+        {% if pr.draft %}
+          {{ govukTag({ text: "Draft", classes: "govuk-tag--grey" }) }}
+        {% endif %}
+        {% if pr.isStale %}
+          {{ govukTag({ text: "Stale", classes: "govuk-tag--orange" }) }}
+        {% endif %}
+      </td>
+
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endmacro %}

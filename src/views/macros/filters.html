@@ -1,0 +1,61 @@
+{% macro filterForm(repoItems, authorItems, query, action) %}
+{% from "govuk/components/select/macro.njk" import govukSelect %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+<form method="GET" action="{{ action }}" class="govuk-!-margin-bottom-4">
+  <div class="govuk-grid-row">
+
+    <div class="govuk-grid-column-one-third">
+      {{ govukSelect({
+        id: "repo",
+        name: "repo",
+        label: { text: "Repository", classes: "govuk-label--s" },
+        items: repoItems
+      }) }}
+    </div>
+
+    <div class="govuk-grid-column-one-third">
+      {{ govukSelect({
+        id: "author",
+        name: "author",
+        label: { text: "Author", classes: "govuk-label--s" },
+        items: authorItems
+      }) }}
+    </div>
+
+    <div class="govuk-grid-column-one-sixth">
+      {{ govukSelect({
+        id: "sort",
+        name: "sort",
+        label: { text: "Sort by", classes: "govuk-label--s" },
+        items: [
+          { value: "age", text: "Age", selected: query.sort == "age" },
+          { value: "updated", text: "Last updated", selected: query.sort == "updated" },
+          { value: "title", text: "Title", selected: query.sort == "title" },
+          { value: "author", text: "Author", selected: query.sort == "author" }
+        ]
+      }) }}
+    </div>
+
+    <div class="govuk-grid-column-one-sixth">
+      {{ govukSelect({
+        id: "dir",
+        name: "dir",
+        label: { text: "Direction", classes: "govuk-label--s" },
+        items: [
+          { value: "desc", text: "Newest first", selected: query.dir == "desc" },
+          { value: "asc", text: "Oldest first", selected: query.dir == "asc" }
+        ]
+      }) }}
+    </div>
+
+  </div>
+
+  <div class="govuk-button-group">
+    {{ govukButton({ text: "Apply filters", classes: "govuk-button--secondary" }) }}
+    {% if query.repo or query.author %}
+      <a class="govuk-link" href="{{ action }}">Clear filters</a>
+    {% endif %}
+  </div>
+</form>
+{% endmacro %}
