@@ -3,7 +3,7 @@ const {
   GITHUB_TOKEN,
   GITHUB_ORG,
   GITHUB_TEAM,
-  JIRA_TICKET_PATTERN = 'DF-\\d+',
+  JIRA_TICKET_PATTERN,
   JIRA_BASE_URL,
   APP_URL,
   CACHE_TTL_MS = '1200000',
@@ -16,13 +16,22 @@ if (!GITHUB_TOKEN) throw new Error('GITHUB_TOKEN environment variable is require
 if (!GITHUB_ORG) throw new Error('GITHUB_ORG environment variable is required')
 if (!GITHUB_TEAM) throw new Error('GITHUB_TEAM environment variable is required')
 
+const hasJiraPattern = Boolean(JIRA_TICKET_PATTERN)
+const hasJiraUrl = Boolean(JIRA_BASE_URL)
+if (hasJiraPattern !== hasJiraUrl) {
+  throw new Error('JIRA_TICKET_PATTERN and JIRA_BASE_URL must both be set or both be unset')
+}
+
+const jiraEnabled = hasJiraPattern && hasJiraUrl
+
 export const config = {
   port: parseInt(PORT, 10),
   githubToken: GITHUB_TOKEN,
   org: GITHUB_ORG,
   team: GITHUB_TEAM,
-  jiraTicketPattern: JIRA_TICKET_PATTERN,
-  jiraBaseUrl: JIRA_BASE_URL ?? null,
+  jiraEnabled,
+  jiraTicketPattern: jiraEnabled ? JIRA_TICKET_PATTERN : null,
+  jiraBaseUrl: jiraEnabled ? JIRA_BASE_URL : null,
   appUrl: APP_URL ?? null,
   cacheTtlMs: parseInt(CACHE_TTL_MS, 10),
   isDevelopment: NODE_ENV === 'development',

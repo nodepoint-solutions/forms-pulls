@@ -20,7 +20,7 @@
       <div class="app-group">
         <h2 class="app-group__heading">
           {% if group.label %}
-            {% if jiraBaseUrl %}
+            {% if query.groupBy == "jira" and jiraBaseUrl %}
               <a class="app-group__ticket" href="{{ jiraBaseUrl }}/{{ group.label }}" target="_blank" rel="noopener noreferrer">{{ group.label }}</a>
             {% else %}
               <span class="app-group__ticket">{{ group.label }}</span>

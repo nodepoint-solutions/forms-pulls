@@ -22,7 +22,7 @@
     These PRs have been reviewed but new commits were pushed since. They are the highest priority for re-review.
   </div>
 
-  {{ filterForm(repoItems, authorItems, query, "/needs-re-review") }}
+  {{ filterForm(repoItems, authorItems, query, "/needs-re-review", jiraEnabled) }}
 
   <p class="app-table-meta">Showing <strong>{{ prs.length }}</strong> pull request{{ "s" if prs.length != 1 }}</p>
 

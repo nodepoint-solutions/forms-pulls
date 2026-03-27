@@ -39,8 +39,8 @@ All configuration is via environment variables. Copy `.env.example` to `.env` an
 | `GITHUB_TOKEN` | Yes | Personal access token with `read:org` and `repo` scopes |
 | `GITHUB_ORG` | Yes | GitHub organisation name (e.g. `DEFRA`) |
 | `GITHUB_TEAM` | Yes | Team slug within the org (e.g. `forms`) |
-| `JIRA_TICKET_PATTERN` | No | Regex pattern to extract ticket refs from PR titles/branches. Default: `DF-\d+` |
-| `JIRA_BASE_URL` | No | Base URL for Jira links, no trailing slash (e.g. `https://yourorg.atlassian.net/browse`). If omitted, ticket labels are shown as plain text |
+| `JIRA_TICKET_PATTERN` | No | Regex pattern to extract ticket refs from PR titles/branches (e.g. `ABC-\d+`). Must be set together with `JIRA_BASE_URL` |
+| `JIRA_BASE_URL` | No | Base URL for Jira links, no trailing slash (e.g. `https://yourorg.atlassian.net/browse`). Must be set together with `JIRA_TICKET_PATTERN` |
 | `APP_URL` | No | Public URL of this app. Used in Slack message footers |
 | `PORT` | No | Server port. Default: `3000` |
 | `CACHE_TTL_MS` | No | Cache TTL in milliseconds. Default: `1200000` (20 minutes) |
@@ -63,6 +63,14 @@ A pre-built image is published to GitHub Container Registry on every push to `ma
 ```bash
 docker pull ghcr.io/<your-org>/<your-repo>:latest
 ```
+
+## Tech stack
+
+This was originally built for a development team within [@defra](https://github.com/defra), so it reflects their standard stack:
+
+- **[Hapi](https://hapi.dev/)** — Node.js web framework
+- **[Nunjucks](https://mozilla.github.io/nunjucks/)** — server-side HTML templating
+- **[hapi-pino](https://github.com/pinojs/hapi-pino)** — structured request logging
 
 ## Development
 

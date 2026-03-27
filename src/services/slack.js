@@ -63,8 +63,7 @@ export function buildSlackBlocks() {
   const ghUser = (login) => `<https://github.com/${login}|@${login}>`
 
   const prLine = (pr) => {
-    const linkText = `${config.org}/${pr.repo}: ${pr.title} #${pr.number}`
-    return `• <${pr.url}|${linkText}> by ${ghUser(pr.author)} · ${ageText(pr.createdAt)}`
+    return `• ${config.org}/${pr.repo}: <${pr.url}|${pr.title} #${pr.number}> by ${ghUser(pr.author)} · ${ageText(pr.createdAt)}`
   }
 
   if (needsReReview.length > 0) {

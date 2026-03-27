@@ -79,6 +79,16 @@ export function groupByJira(prs) {
   return result
 }
 
+export function groupByField(prs, field) {
+  const groups = new Map()
+  for (const pr of prs) {
+    const key = pr[field]
+    if (!groups.has(key)) groups.set(key, [])
+    groups.get(key).push(pr)
+  }
+  return [...groups.keys()].sort().map((key) => ({ label: key, prs: groups.get(key) }))
+}
+
 export function buildViewContext(data, basePRs, prs, query, currentPath, title, description, cooldown = false, slackStatus = null, slackEnabled = false) {
   const repos = buildSelectOptions(basePRs, 'repo')
   const authors = buildSelectOptions(basePRs, 'author')
@@ -93,7 +103,12 @@ export function buildViewContext(data, basePRs, prs, query, currentPath, title, 
     title,
     description,
     prs: formattedPRs,
-    groups: query.groupBy === 'jira' ? groupByJira(formattedPRs) : null,
+    groups: (() => {
+      if (query.groupBy === 'jira' && config.jiraEnabled) return groupByJira(formattedPRs)
+      if (query.groupBy === 'author') return groupByField(formattedPRs, 'author')
+      if (query.groupBy === 'repo') return groupByField(formattedPRs, 'repo')
+      return null
+    })(),
     repoItems: [
       { value: '', text: 'All repositories' },
       ...repos.map((r) => ({ value: r, text: r, selected: query.repo === r })),
@@ -112,6 +127,7 @@ export function buildViewContext(data, basePRs, prs, query, currentPath, title, 
     slackEnabled,
     org: config.org,
     team: config.team,
+    jiraEnabled: config.jiraEnabled,
     jiraBaseUrl: config.jiraBaseUrl,
   }
 }

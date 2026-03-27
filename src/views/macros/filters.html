@@ -1,4 +1,4 @@
-{% macro filterForm(repoItems, authorItems, query, action) %}
+{% macro filterForm(repoItems, authorItems, query, action, jiraEnabled) %}
 <form method="GET" action="{{ action }}" class="app-filters">
 
   <div class="app-filter-field">
@@ -41,7 +41,11 @@
     <label class="app-filter-label" for="groupBy">Group by</label>
     <select id="groupBy" name="groupBy" class="app-select">
       <option value=""{% if not query.groupBy %} selected{% endif %}>None</option>
+      <option value="author"{% if query.groupBy == "author" %} selected{% endif %}>Author</option>
+      <option value="repo"{% if query.groupBy == "repo" %} selected{% endif %}>Repository</option>
+      {% if jiraEnabled %}
       <option value="jira"{% if query.groupBy == "jira" %} selected{% endif %}>Jira ticket</option>
+      {% endif %}
     </select>
   </div>
 

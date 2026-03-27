@@ -10,7 +10,6 @@ import errorsPlugin from './plugins/errors.js'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 const viewsPath = join(__dirname, 'views')
-const govukPath = join(__dirname, '../node_modules/govuk-frontend/dist')
 
 export async function createServer() {
   const server = hapi.server({
@@ -32,7 +31,7 @@ export async function createServer() {
   // Register vision at root level — all plugin realms can walk up and find it
   await server.register(vision)
 
-  const env = nunjucks.configure([viewsPath, govukPath], {
+  const env = nunjucks.configure([viewsPath], {
     autoescape: true,
     watch: config.isDevelopment,
     noCache: config.isDevelopment,

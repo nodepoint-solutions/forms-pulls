@@ -11,20 +11,12 @@ import refreshRoute from '../routes/refresh.js'
 import slackSummaryRoute from '../routes/slack-summary.js'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
-const govukDistPath = join(__dirname, '../../node_modules/govuk-frontend/dist/govuk')
 const publicPath = join(__dirname, '../public')
 
 export default {
   name: 'router',
   async register(server) {
     await server.register(inert)
-
-    // GOV.UK Frontend assets (CSS, JS, fonts, images)
-    server.route({
-      method: 'GET',
-      path: '/public/{param*}',
-      handler: { directory: { path: govukDistPath } },
-    })
 
     // App-specific CSS
     server.route({

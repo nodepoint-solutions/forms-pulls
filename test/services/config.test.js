@@ -4,7 +4,7 @@ describe('config', () => {
   const originalEnv = process.env
 
   beforeEach(() => {
-    process.env = { ...originalEnv, GITHUB_TOKEN: 'test-token' }
+    process.env = { ...originalEnv, GITHUB_TOKEN: 'test-token', GITHUB_ORG: 'test-org', GITHUB_TEAM: 'test-team' }
   })
 
   afterEach(() => {
@@ -26,5 +26,35 @@ describe('config', () => {
   it('throws if GITHUB_TOKEN is missing', async () => {
     delete process.env.GITHUB_TOKEN
     await expect(import('../../src/config.js?v=' + Math.random())).rejects.toThrow(/GITHUB_TOKEN/)
+  })
+
+  it('throws if only JIRA_TICKET_PATTERN is set without JIRA_BASE_URL', async () => {
+    process.env.JIRA_TICKET_PATTERN = 'ABC-\\d+'
+    delete process.env.JIRA_BASE_URL
+    await expect(import('../../src/config.js?v=' + Math.random())).rejects.toThrow(/JIRA_TICKET_PATTERN and JIRA_BASE_URL/)
+  })
+
+  it('throws if only JIRA_BASE_URL is set without JIRA_TICKET_PATTERN', async () => {
+    delete process.env.JIRA_TICKET_PATTERN
+    process.env.JIRA_BASE_URL = 'https://jira.example.com'
+    await expect(import('../../src/config.js?v=' + Math.random())).rejects.toThrow(/JIRA_TICKET_PATTERN and JIRA_BASE_URL/)
+  })
+
+  it('enables jira when both JIRA_TICKET_PATTERN and JIRA_BASE_URL are set', async () => {
+    process.env.JIRA_TICKET_PATTERN = 'ABC-\\d+'
+    process.env.JIRA_BASE_URL = 'https://jira.example.com'
+    const { config } = await import('../../src/config.js?v=' + Math.random())
+    expect(config.jiraEnabled).toBe(true)
+    expect(config.jiraTicketPattern).toBe('ABC-\\d+')
+    expect(config.jiraBaseUrl).toBe('https://jira.example.com')
+  })
+
+  it('disables jira when neither var is set', async () => {
+    delete process.env.JIRA_TICKET_PATTERN
+    delete process.env.JIRA_BASE_URL
+    const { config } = await import('../../src/config.js?v=' + Math.random())
+    expect(config.jiraEnabled).toBe(false)
+    expect(config.jiraTicketPattern).toBeNull()
+    expect(config.jiraBaseUrl).toBeNull()
   })
 })

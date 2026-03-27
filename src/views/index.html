@@ -15,7 +15,7 @@
     </p>
   </div>
 
-  {{ filterForm(repoItems, authorItems, query, "/") }}
+  {{ filterForm(repoItems, authorItems, query, "/", jiraEnabled) }}
 
   <p class="app-table-meta">Showing <strong>{{ prs.length }}</strong> pull request{{ "s" if prs.length != 1 }}</p>
 

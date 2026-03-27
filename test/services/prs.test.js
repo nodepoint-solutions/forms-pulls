@@ -2,7 +2,7 @@ import { describe, it, expect, jest } from '@jest/globals'
 
 // config.js throws at import time if GITHUB_TOKEN is absent — mock it first
 jest.unstable_mockModule('../../src/config.js', () => ({
-  config: { port: 3000, githubToken: 'test', cacheTtlMs: 300000, isDevelopment: false },
+  config: { port: 3000, githubToken: 'test', cacheTtlMs: 300000, isDevelopment: false, jiraEnabled: true, jiraTicketPattern: 'DF-\\d+' },
 }))
 
 const { isBot, isMergeCommit, formatPR, runWithConcurrency } = await import('../../src/services/prs.js')

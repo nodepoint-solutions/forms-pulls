@@ -3,9 +3,10 @@ import * as cache from './cache.js'
 import { fetchAllPages } from './github.js'
 
 const FOURTEEN_DAYS_MS = 14 * 24 * 60 * 60 * 1000
-const JIRA_RE = new RegExp(`\\b${config.jiraTicketPattern}\\b`, 'gi')
+const JIRA_RE = config.jiraEnabled ? new RegExp(`\\b${config.jiraTicketPattern}\\b`, 'gi') : null
 
 export function extractJiraTicket(rawPR) {
+  if (!JIRA_RE) return null
   const text = [rawPR.title ?? '', rawPR.body ?? '', rawPR.head?.ref ?? ''].join(' ')
   const match = text.match(JIRA_RE)
   return match ? match[0].toUpperCase() : null
