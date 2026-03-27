@@ -423,6 +423,7 @@ code {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow-x: auto;
+  background: var(--surface);
 }
 
 table.app-table {
@@ -458,11 +459,12 @@ table.app-table {
 
 .app-table td {
   padding: 16px 18px;
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border);
   vertical-align: top;
+  background: var(--surface-2);
 }
 .app-table tr:last-child td { border-bottom: none; }
-.app-table tbody tr:hover td { background: var(--surface); }
+.app-table tbody tr:hover td { background: var(--surface-3); }
 
 /* PR title cell */
 .app-pr-title a {
