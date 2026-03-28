@@ -93,7 +93,7 @@ export function getPRs() {
 }
 
 // Fetches from GitHub and populates the cache. Called only by the scheduler.
-export async function warmCache() {
+export async function warmPrCache() {
   const { githubToken } = config
 
   const { org, team } = config

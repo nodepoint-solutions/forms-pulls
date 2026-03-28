@@ -1,15 +1,21 @@
 import { createServer } from './server.js'
-import { warmCache } from './services/prs.js'
+import { warmPrCache } from './services/prs.js'
+import { warmDependencyCache } from './services/dependencies/index.js'
 import { startScheduler, startSlackScheduler } from './services/scheduler.js'
 import { sendSlackSummary } from './services/slack.js'
 import { config } from './config.js'
 
-// Warm cache before accepting any requests — start anyway if it fails so users see an error
+// Warm PR cache before accepting any requests — start anyway if it fails so users see an error
 try {
-  await warmCache()
+  await warmPrCache()
 } catch (err) {
   console.error('Startup cache warm failed:', err.message)
 }
+
+// Warm dependency cache in the background — does not block server startup
+warmDependencyCache().catch((err) => {
+  console.error('Startup dependency cache warm failed:', err.message)
+})
 
 const server = await createServer()
 await server.start()

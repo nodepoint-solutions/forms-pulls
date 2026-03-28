@@ -1,6 +1,6 @@
 import * as cache from '../services/cache.js'
 import * as depCache from '../services/dep-cache.js'
-import { warmCache } from '../services/prs.js'
+import { warmPrCache } from '../services/prs.js'
 
 const ALLOWED = ['/', '/all', '/stale', '/unreviewed', '/needs-re-review', '/dependencies']
 
@@ -17,7 +17,7 @@ export default {
     const path = safeRedirect(request.headers.referer || '/')
     if (cache.isCooldown()) return h.redirect(`${path}?cooldown=1`)
     depCache.clear()
-    warmCache().catch((err) => console.error('Manual refresh failed:', err.message))
+    warmPrCache().catch((err) => console.error('Manual refresh failed:', err.message))
     return h.redirect(path)
   },
 }

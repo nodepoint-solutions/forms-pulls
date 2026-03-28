@@ -1,4 +1,5 @@
-import { warmCache } from './prs.js'
+import { warmPrCache } from './prs.js'
+import { warmDependencyCache } from './dependencies/index.js'
 import { config } from '../config.js'
 
 export function startScheduler({ skipInitial = false } = {}) {
@@ -8,7 +9,7 @@ export function startScheduler({ skipInitial = false } = {}) {
     if (running) return
     running = true
     try {
-      await warmCache()
+      await Promise.all([warmPrCache(), warmDependencyCache()])
     } catch (err) {
       console.error('Scheduler: cache warm failed —', err.message)
     } finally {
