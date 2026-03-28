@@ -15,7 +15,7 @@ jest.unstable_mockModule('../../src/config.js', () => ({
 const mockGetPRs = jest.fn()
 jest.unstable_mockModule('../../src/services/prs.js', () => ({
   getPRs: mockGetPRs,
-  warmCache: jest.fn().mockResolvedValue({}),
+  warmPrCache: jest.fn().mockResolvedValue({}),
   isBot: jest.fn(),
 }))
 
@@ -49,19 +49,19 @@ describe('GET /dependencies', () => {
   })
 
   it('returns 200', async () => {
-    mockGetDependencies.mockResolvedValueOnce(makeDepData())
+    mockGetDependencies.mockReturnValueOnce(makeDepData())
     const res = await server.inject({ method: 'GET', url: '/dependencies' })
     expect(res.statusCode).toBe(200)
   })
 
   it('shows the unconfigured message when trackedDependencies is empty', async () => {
-    mockGetDependencies.mockResolvedValueOnce(makeDepData({ trackedDependencies: [] }))
+    mockGetDependencies.mockReturnValueOnce(makeDepData({ trackedDependencies: [] }))
     const res = await server.inject({ method: 'GET', url: '/dependencies' })
     expect(res.payload).toContain('TRACKED_DEPENDENCIES')
   })
 
   it('shows a drift warning when driftCount > 0', async () => {
-    mockGetDependencies.mockResolvedValueOnce(makeDepData({
+    mockGetDependencies.mockReturnValueOnce(makeDepData({
       driftCount: 2,
       rows: [
         {
@@ -76,7 +76,7 @@ describe('GET /dependencies', () => {
   })
 
   it('shows a success banner when driftCount is 0', async () => {
-    mockGetDependencies.mockResolvedValueOnce(makeDepData({
+    mockGetDependencies.mockReturnValueOnce(makeDepData({
       driftCount: 0,
       rows: [
         {
@@ -90,7 +90,7 @@ describe('GET /dependencies', () => {
   })
 
   it('does not render repos where the dependency is absent', async () => {
-    mockGetDependencies.mockResolvedValueOnce(makeDepData({
+    mockGetDependencies.mockReturnValueOnce(makeDepData({
       rows: [
         {
           repo: 'forms-api',

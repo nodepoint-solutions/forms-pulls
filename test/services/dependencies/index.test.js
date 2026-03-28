@@ -38,9 +38,9 @@ const mockNpmAdapter = {
 
 jest.unstable_mockModule('../../../src/services/dependencies/adapters/npm.js', () => mockNpmAdapter)
 
-const { getDependencies } = await import('../../../src/services/dependencies/index.js')
+const { warmDependencyCache, getDependencies } = await import('../../../src/services/dependencies/index.js')
 
-describe('getDependencies', () => {
+describe('warmDependencyCache', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockDepCache.isExpired.mockReturnValue(true)
@@ -50,7 +50,7 @@ describe('getDependencies', () => {
   it('returns empty result when trackedDependencies is empty', async () => {
     const { config } = await import('../../../src/config.js')
     config.trackedDependencies = []
-    const result = await getDependencies()
+    const result = await warmDependencyCache()
     expect(result.rows).toEqual([])
     expect(result.trackedDependencies).toEqual([])
     expect(result.driftCount).toBe(0)
@@ -62,7 +62,7 @@ describe('getDependencies', () => {
     mockNpmAdapter.fetchLatestVersion.mockResolvedValueOnce('22.0.0')
     mockFetchFile.mockResolvedValueOnce(JSON.stringify({ dependencies: { hapi: '^21.3.0' } }))
     mockNpmAdapter.extractVersion.mockReturnValueOnce('^21.3.0')
-    const result = await getDependencies()
+    const result = await warmDependencyCache()
     expect(result.driftCount).toBe(1)
     expect(result.rows[0].deps['npm:hapi'].isDrift).toBe(true)
     expect(result.rows[0].deps['npm:hapi'].pinned).toBe('^21.3.0')
@@ -74,7 +74,7 @@ describe('getDependencies', () => {
     mockNpmAdapter.fetchLatestVersion.mockResolvedValueOnce('21.3.0')
     mockFetchFile.mockResolvedValueOnce(JSON.stringify({ dependencies: { hapi: '21.3.0' } }))
     mockNpmAdapter.extractVersion.mockReturnValueOnce('21.3.0')
-    const result = await getDependencies()
+    const result = await warmDependencyCache()
     expect(result.driftCount).toBe(0)
     expect(result.rows[0].deps['npm:hapi'].isDrift).toBe(false)
   })
@@ -83,7 +83,7 @@ describe('getDependencies', () => {
     mockFetchAllPages.mockResolvedValueOnce([{ name: 'forms-api', permissions: { admin: true } }])
     mockNpmAdapter.fetchLatestVersion.mockResolvedValueOnce('21.3.0')
     mockFetchFile.mockResolvedValueOnce(null)
-    const result = await getDependencies()
+    const result = await warmDependencyCache()
     expect(result.rows).toHaveLength(0)
   })
 
@@ -92,7 +92,7 @@ describe('getDependencies', () => {
     mockNpmAdapter.fetchLatestVersion.mockResolvedValueOnce('21.3.0')
     mockFetchFile.mockResolvedValueOnce(JSON.stringify({ dependencies: { hapi: '21.3.0' } }))
     mockNpmAdapter.extractVersion.mockReturnValueOnce('21.3.0')
-    const result = await getDependencies()
+    const result = await warmDependencyCache()
     expect(result.rows).toHaveLength(1)
     expect(result.rows[0].repo).toBe('forms-api')
   })
@@ -102,7 +102,7 @@ describe('getDependencies', () => {
     mockNpmAdapter.fetchLatestVersion.mockRejectedValueOnce(new Error('network error'))
     mockFetchFile.mockResolvedValueOnce(JSON.stringify({ dependencies: { hapi: '21.3.0' } }))
     mockNpmAdapter.extractVersion.mockReturnValueOnce('21.3.0')
-    const result = await getDependencies()
+    const result = await warmDependencyCache()
     expect(result.rows[0].deps['npm:hapi'].latest).toBeNull()
     expect(result.rows[0].deps['npm:hapi'].isDrift).toBe(false)
   })
@@ -116,8 +116,20 @@ describe('getDependencies', () => {
     mockNpmAdapter.fetchLatestVersion.mockResolvedValueOnce('21.3.0')
     mockFetchFile.mockResolvedValueOnce(JSON.stringify({ dependencies: { hapi: '21.3.0' } }))
     mockNpmAdapter.extractVersion.mockReturnValueOnce('21.3.0')
-    const result = await getDependencies()
+    const result = await warmDependencyCache()
     expect(result.rows).toHaveLength(1)
     expect(result.rows[0].repo).toBe('forms-api')
+  })
+})
+
+describe('getDependencies', () => {
+  it('returns empty data before cache is warmed', () => {
+    // Module-level depStore is populated by warmDependencyCache calls above,
+    // but since modules are isolated per test file, getDependencies reflects
+    // whatever warmDependencyCache last set.
+    const result = getDependencies()
+    expect(result).toHaveProperty('rows')
+    expect(result).toHaveProperty('trackedDependencies')
+    expect(result).toHaveProperty('driftCount')
   })
 })

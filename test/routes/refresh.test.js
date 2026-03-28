@@ -2,7 +2,7 @@ import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals
 
 jest.unstable_mockModule('../../src/services/prs.js', () => ({
   getPRs: jest.fn().mockReturnValue({ fetchedAt: new Date(), teamMembers: new Set(), prs: [] }),
-  warmCache: jest.fn().mockResolvedValue({}),
+  warmPrCache: jest.fn().mockResolvedValue({}),
   isBot: jest.fn(() => false),
   isMergeCommit: jest.fn(() => false),
   formatPR: jest.fn(),
