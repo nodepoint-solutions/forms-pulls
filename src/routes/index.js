@@ -12,7 +12,7 @@ export default {
     const data = await getPRs()
 
     const basePRs = data.prs.filter(
-      (pr) => data.teamMembers.has(pr.author) && !isBot({ type: pr.authorType, login: pr.author })
+      (pr) => data.teamMembers.has(pr.author) && !pr.isReviewed && !pr.draft && !isBot({ type: pr.authorType, login: pr.author })
     )
 
     const prs = applySort(applyFilters(basePRs, { repo, author }), sort, dir)
