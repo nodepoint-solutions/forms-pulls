@@ -9,6 +9,25 @@ export default {
   async handler(request, h) {
     const prData = getPRs()
     const depData = await getDependencies()
+
+    const depsView = depData.trackedDependencies.map(({ ecosystem, packageName }) => {
+      const key = `${ecosystem}:${packageName}`
+      const drifting = []
+      const current = []
+      let latest = null
+      for (const row of depData.rows) {
+        const cell = row.deps[key]
+        if (!cell || cell.pinned === null) continue
+        if (!latest && cell.latest) latest = cell.latest
+        if (cell.isDrift) {
+          drifting.push({ repo: row.repo, pinned: cell.pinned, latest: cell.latest })
+        } else {
+          current.push({ repo: row.repo, pinned: cell.pinned })
+        }
+      }
+      return { key, ecosystem, packageName, latest, drifting, current, driftCount: drifting.length }
+    })
+
     return h.view('dependencies', {
       title: 'Dependency Drift',
       currentPath: '/dependencies',
@@ -16,7 +35,9 @@ export default {
       org: config.org,
       team: config.team,
       fetchedAtFormatted: formatAge(depData.fetchedAt),
-      ...depData,
+      trackedDependencies: depData.trackedDependencies,
+      driftCount: depData.driftCount,
+      depsView,
     })
   },
 }

@@ -89,7 +89,7 @@ describe('GET /dependencies', () => {
     expect(res.payload).toContain('up to date')
   })
 
-  it('renders — for absent packages', async () => {
+  it('does not render repos where the dependency is absent', async () => {
     mockGetDependencies.mockResolvedValueOnce(makeDepData({
       rows: [
         {
@@ -99,6 +99,6 @@ describe('GET /dependencies', () => {
       ],
     }))
     const res = await server.inject({ method: 'GET', url: '/dependencies' })
-    expect(res.payload).toContain('—')
+    expect(res.payload).not.toContain('forms-api')
   })
 })
