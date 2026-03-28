@@ -54,6 +54,7 @@ All configuration is via environment variables. Copy `.env.example` to `.env` an
 | `SLACK_BOT_TOKEN` | No | Slack bot token (`xoxb-…`) to enable Slack summaries |
 | `SLACK_CHANNEL_ID` | No | Slack channel ID to post summaries to |
 | `TRACKED_DEPENDENCIES` | No | Comma-separated list of `ecosystem:package` pairs to track on the Dependencies page (e.g. `npm:express,npm:lodash,pypi:requests`) |
+| `REQUIRED_TEAM_ROLE` | No | Minimum GitHub team role a repo must have to appear in any view. One of `pull`, `triage`, `push`, `maintain`, `admin`. Default: `admin` |
 
 ### Dependency drift tracking
 
@@ -71,7 +72,7 @@ Results are cached alongside the PR data and cleared when you hit **Refresh**.
 
 ### Repo filtering
 
-Only repositories where the configured team has **admin** permissions are included. Repos where the team has write-only access are excluded.
+Only repositories where the configured team has the required role are included. The role is controlled by `REQUIRED_TEAM_ROLE` (default: `admin`). Valid values mirror GitHub's team permission levels: `pull`, `triage`, `push`, `maintain`, `admin`. Repos below the configured threshold are excluded from all views.
 
 ## Docker
 

@@ -83,6 +83,23 @@ describe('config', () => {
     ])
   })
 
+  it('defaults requiredTeamRole to admin when REQUIRED_TEAM_ROLE is unset', async () => {
+    delete process.env.REQUIRED_TEAM_ROLE
+    const { config } = await import('../../src/config.js?v=' + Math.random())
+    expect(config.requiredTeamRole).toBe('admin')
+  })
+
+  it('accepts a valid REQUIRED_TEAM_ROLE', async () => {
+    process.env.REQUIRED_TEAM_ROLE = 'maintain'
+    const { config } = await import('../../src/config.js?v=' + Math.random())
+    expect(config.requiredTeamRole).toBe('maintain')
+  })
+
+  it('throws for an invalid REQUIRED_TEAM_ROLE', async () => {
+    process.env.REQUIRED_TEAM_ROLE = 'owner'
+    await expect(import('../../src/config.js?v=' + Math.random())).rejects.toThrow(/REQUIRED_TEAM_ROLE/)
+  })
+
   it('trims whitespace from entries in TRACKED_DEPENDENCIES', async () => {
     process.env.TRACKED_DEPENDENCIES = ' npm : govuk-frontend , npm : hapi '
     const { config } = await import('../../src/config.js?v=' + Math.random())

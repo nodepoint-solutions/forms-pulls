@@ -6,6 +6,7 @@ jest.unstable_mockModule('../../../src/config.js', () => ({
     team: 'test-team',
     githubToken: 'test-token',
     cacheTtlMs: 300000,
+    requiredTeamRole: 'admin',
     trackedDependencies: [
       { ecosystem: 'npm', packageName: 'hapi' },
     ],

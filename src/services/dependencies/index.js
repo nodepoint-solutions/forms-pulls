@@ -48,7 +48,7 @@ export async function getDependencies() {
   }
 
   const allRepos = await fetchAllPages(`/orgs/${org}/teams/${team}/repos?per_page=100`, githubToken)
-  const repos = allRepos.filter((repo) => repo.permissions?.admin)
+  const repos = allRepos.filter((repo) => repo.permissions?.[config.requiredTeamRole])
 
   const latestMap = {}
   await Promise.all(

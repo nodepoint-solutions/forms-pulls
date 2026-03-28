@@ -11,11 +11,17 @@ const {
   SLACK_BOT_TOKEN,
   SLACK_CHANNEL_ID,
   TRACKED_DEPENDENCIES = '',
+  REQUIRED_TEAM_ROLE = 'admin',
 } = process.env
 
 if (!GITHUB_TOKEN) throw new Error('GITHUB_TOKEN environment variable is required')
 if (!GITHUB_ORG) throw new Error('GITHUB_ORG environment variable is required')
 if (!GITHUB_TEAM) throw new Error('GITHUB_TEAM environment variable is required')
+
+const VALID_TEAM_ROLES = ['pull', 'triage', 'push', 'maintain', 'admin']
+if (!VALID_TEAM_ROLES.includes(REQUIRED_TEAM_ROLE)) {
+  throw new Error(`REQUIRED_TEAM_ROLE must be one of: ${VALID_TEAM_ROLES.join(', ')} (got "${REQUIRED_TEAM_ROLE}")`)
+}
 
 const hasJiraPattern = Boolean(JIRA_TICKET_PATTERN)
 const hasJiraUrl = Boolean(JIRA_BASE_URL)
@@ -54,4 +60,5 @@ export const config = {
   slackBotToken: SLACK_BOT_TOKEN ?? null,
   slackChannelId: SLACK_CHANNEL_ID ?? null,
   trackedDependencies: parseTrackedDeps(TRACKED_DEPENDENCIES),
+  requiredTeamRole: REQUIRED_TEAM_ROLE,
 }
