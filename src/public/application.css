@@ -695,3 +695,29 @@ table.app-table {
   .app-page-header__title { font-size: 18px; }
   .app-main { padding: 20px 12px 40px; }
 }
+
+/* ============================================================
+   DEPENDENCY DRIFT TABLE
+   ============================================================ */
+.app-dep-ecosystem {
+  display: block;
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--text-subtle);
+  text-transform: none;
+  letter-spacing: 0;
+  margin-top: 2px;
+}
+
+.app-dep--absent {
+  color: var(--text-subtle);
+  font-family: var(--mono);
+  font-size: 13px;
+}
+
+.app-dep-latest {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--green);
+  margin-top: 4px;
+}

@@ -1,0 +1,72 @@
+{% extends "layout.html" %}
+
+{% block content %}
+  <div class="app-page-header">
+    <p class="app-page-header__caption">{{ org }} / {{ team }} team</p>
+    <h1 class="app-page-header__title">{{ title }}</h1>
+    <p class="app-page-header__desc">Dependency versions across all team repos, compared to the latest published release.</p>
+    <p class="app-page-header__meta">
+      Last updated {{ fetchedAtFormatted }} —
+      <form method="POST" action="/refresh" style="display:inline">
+        <button class="app-refresh-btn">Refresh</button>
+      </form>
+    </p>
+  </div>
+
+  {% if not trackedDependencies.length %}
+    <div class="app-alert app-alert--info">
+      No dependencies configured — set <code>TRACKED_DEPENDENCIES</code> in your environment (e.g. <code>npm:govuk-frontend,npm:hapi</code>).
+    </div>
+  {% else %}
+
+    {% if driftCount > 0 %}
+      <div class="app-alert app-alert--warning">
+        <strong>{{ driftCount }} repo{{ "s" if driftCount != 1 }}</strong> {{ "has" if driftCount == 1 else "have" }} dependency drift.
+      </div>
+    {% else %}
+      <div class="app-alert app-alert--success">
+        All tracked dependencies are up to date.
+      </div>
+    {% endif %}
+
+    <div class="app-table-wrap">
+      <table class="app-table">
+        <thead>
+          <tr>
+            <th>Repository</th>
+            {% for dep in trackedDependencies %}
+              <th>
+                {{ dep.packageName }}
+                <span class="app-dep-ecosystem">{{ dep.ecosystem }}</span>
+              </th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in rows %}
+            <tr>
+              <td><span class="app-mono">{{ row.repo }}</span></td>
+              {% for dep in trackedDependencies %}
+                {% set key = dep.ecosystem + ":" + dep.packageName %}
+                {% set cell = row.deps[key] %}
+                <td>
+                  {% if cell.pinned is null %}
+                    <span class="app-dep--absent">—</span>
+                  {% elif cell.isDrift %}
+                    <span class="app-pill app-pill--red" title="Latest: {{ cell.latest }}">{{ cell.pinned }}</span>
+                    {% if cell.latest %}
+                      <div class="app-dep-latest">→ {{ cell.latest }}</div>
+                    {% endif %}
+                  {% else %}
+                    <span class="app-pill app-pill--green">{{ cell.pinned }}</span>
+                  {% endif %}
+                </td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  {% endif %}
+{% endblock %}
