@@ -32,6 +32,7 @@ export default {
       title: 'Dependency Drift',
       currentPath: '/dependencies',
       navCounts: buildNavCounts(prData),
+      fetchedAt: prData.fetchedAt,
       org: config.org,
       team: config.team,
       fetchedAtFormatted: formatAge(depData.fetchedAt),
