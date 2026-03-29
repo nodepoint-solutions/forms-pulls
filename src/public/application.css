@@ -250,6 +250,46 @@ code {
   transition: opacity 0.15s;
 }
 .app-sidebar__about:hover { opacity: 1; text-decoration: none; }
+.app-sidebar__about.is-active { opacity: 1; }
+
+/* ============================================================
+   ABOUT PAGE
+   ============================================================ */
+.app-about {
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.app-about__section {}
+
+.app-about__heading {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.app-about__body {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0 0 8px;
+}
+.app-about__body:last-child { margin-bottom: 0; }
+
+.app-about__repo-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 13px;
+}
+
+.app-about__deps { margin-top: 12px; }
 
 .app-alert {
   padding: 11px 32px;
