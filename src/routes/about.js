@@ -12,7 +12,6 @@ export default {
       currentPath: '/about',
       navCounts: buildNavCounts(prData),
       fetchedAt: prData.fetchedAt,
-      slackAction: '/slack-summary',
       org: config.org,
       team: config.team,
     })
