@@ -64,6 +64,7 @@ async function fetchRepoSecurityAlerts(org, repoName, githubToken) {
   })
   return rawAlerts.map((alert) => ({
     repo: repoName,
+    alertNumber: alert.number,
     package: alert.dependency.package.name,
     ecosystem: alert.dependency.package.ecosystem,
     severity: alert.security_advisory.severity,

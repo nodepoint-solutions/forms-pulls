@@ -14,19 +14,25 @@
   </div>
 
   {% if alertCount == 0 %}
-    <div class="app-alert app-alert--success">
+    <div class="app-alert app-alert--success" style="margin-bottom: 1.5rem">
       No open vulnerability alerts.
     </div>
   {% else %}
-    <div class="app-alert app-alert--warning">
+    <div class="app-alert app-alert--warning" style="margin-bottom: 1.5rem">
       <strong>{{ alertCount }} open vulnerability alert{{ "s" if alertCount != 1 }}</strong> across team repositories.
     </div>
 
-    {% for repoGroup in repoAlerts %}
+    <div class="app-group-toggle">
+      <span>Group by:</span>
+      <a href="/security?groupBy=severity" class="{{ 'is-active' if groupBy == 'severity' }}">Severity</a>
+      <a href="/security?groupBy=repo" class="{{ 'is-active' if groupBy == 'repo' }}">Repository</a>
+    </div>
+
+    {% for group in alertGroups %}
       <div class="app-group">
         <h2 class="app-group__heading">
-          <span class="app-group__ticket">{{ repoGroup.repo }}</span>
-          <span class="app-group__count">{{ repoGroup.alerts.length }} alert{{ "s" if repoGroup.alerts.length != 1 }}</span>
+          <span class="app-group__ticket">{{ group.label }}</span>
+          <span class="app-group__count">{{ group.alerts.length }} alert{{ "s" if group.alerts.length != 1 }}</span>
         </h2>
         <div class="app-table-wrap">
           <table class="app-table">
@@ -40,7 +46,7 @@
               </tr>
             </thead>
             <tbody>
-              {% for alert in repoGroup.alerts %}
+              {% for alert in group.alerts %}
               <tr>
                 <td class="app-mono">{{ alert.package }}</td>
                 <td>
@@ -54,7 +60,9 @@
                     <span class="app-pill app-pill--blue">Low</span>
                   {% endif %}
                 </td>
-                <td>{{ alert.title }}</td>
+                <td>
+                  <a href="https://github.com/{{ org }}/{{ alert.repo }}/security/dependabot/{{ alert.alertNumber }}" target="_blank" rel="noopener noreferrer">{{ alert.title }}</a>
+                </td>
                 <td class="app-mono">
                   {% if alert.ghsaId %}
                     <a href="https://github.com/advisories/{{ alert.ghsaId }}" target="_blank" rel="noopener noreferrer">{{ alert.ghsaId }}</a>
