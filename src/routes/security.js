@@ -13,6 +13,8 @@ export default {
     const prData = getPRs()
     const { alerts, alertCount, fetchedAt } = getSecurityAlerts()
     const groupBy = request.query.groupBy === 'repo' ? 'repo' : 'severity'
+    const slackEnabled = !!(config.slackBotToken && config.slackChannelId)
+    const slackStatus = request.query.slack ?? null
 
     let alertGroups
 
@@ -53,6 +55,8 @@ export default {
       fetchedAtFormatted: fetchedAt ? formatAge(fetchedAt) : '—',
       alertGroups,
       groupBy,
+      slackEnabled,
+      slackStatus,
       org: config.org,
       team: config.team,
     })

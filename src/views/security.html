@@ -10,8 +10,22 @@
       <form method="POST" action="/refresh" style="display:inline">
         <button class="app-refresh-btn">Refresh</button>
       </form>
+      {% if slackEnabled %}
+        —
+        <form method="POST" action="/security-slack-summary" style="display:inline">
+          <button class="app-refresh-btn">Send Slack summary</button>
+        </form>
+      {% endif %}
     </p>
   </div>
+
+  {% if slackStatus == 'sent' %}
+    <div class="app-alert app-alert--success" style="margin-bottom: 1rem">Slack security summary sent.</div>
+  {% elif slackStatus == 'cooldown' %}
+    <div class="app-alert app-alert--info" style="margin-bottom: 1rem">Already sent in the last hour — try again later.</div>
+  {% elif slackStatus == 'not-configured' %}
+    <div class="app-alert app-alert--warning" style="margin-bottom: 1rem">Slack not configured — set SLACK_BOT_TOKEN and SLACK_CHANNEL_ID.</div>
+  {% endif %}
 
   {% if alertCount == 0 %}
     <div class="app-alert app-alert--success" style="margin-bottom: 1.5rem">

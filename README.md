@@ -18,7 +18,7 @@ A self-hosted dashboard that shows open pull requests for a GitHub team. It surf
 - **Needs merging** — approved PRs that are ready to land
 - **Dependency drift** — tracks whether key packages are on their latest version across all team repos
 - **Grouped by Jira ticket** — optionally links back to your Jira instance
-- **Slack summary** — post a formatted PR digest to a Slack channel on demand
+- **Slack summary** — post a formatted PR digest to a Slack channel on demand or on a daily schedule (9am UK time); security alert summary posts automatically every Monday after the PR digest and can also be triggered manually from the Security tab
 - Background cache warming every 20 minutes (configurable)
 
 ## Requirements
@@ -54,9 +54,19 @@ All configuration is via environment variables. Copy `.env.example` to `.env` an
 | `PORT` | No | Server port. Default: `3000` |
 | `CACHE_TTL_MS` | No | Cache TTL in milliseconds. Default: `1200000` (20 minutes) |
 | `SLACK_BOT_TOKEN` | No | Slack bot token (`xoxb-…`) to enable Slack summaries |
-| `SLACK_CHANNEL_ID` | No | Slack channel ID to post summaries to |
+| `SLACK_CHANNEL_ID` | No | Slack channel ID to post summaries to. Both token and channel ID must be set to enable Slack |
 | `TRACKED_DEPENDENCIES` | No | Comma-separated list of `ecosystem:package` pairs to track on the Dependencies page (e.g. `npm:express,npm:lodash,pypi:requests`) |
 | `REQUIRED_TEAM_ROLE` | No | Minimum GitHub team role a repo must have to appear in any view. One of `pull`, `triage`, `push`, `maintain`, `admin`. Default: `admin` |
+
+### Slack summaries
+
+When `SLACK_BOT_TOKEN` and `SLACK_CHANNEL_ID` are set, two types of summary are available:
+
+**PR digest** — sent daily at 9am UK time (Europe/London, DST-aware). Lists PRs that need re-review and PRs awaiting first review, grouped by Jira ticket. Can also be triggered manually from the sidebar.
+
+**Security alert summary** — sent automatically every Monday at 9am UK time, immediately after the PR digest. Shows a count of open Dependabot alerts grouped by severity (Critical / High / Medium / Low) with a link to the Security tab. Can also be triggered manually from the Security tab.
+
+Both summaries include a link back to the dashboard if `APP_URL` is set, and respect a one-hour cooldown when triggered manually.
 
 ### Dependency drift tracking
 

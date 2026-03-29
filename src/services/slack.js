@@ -1,11 +1,18 @@
 import { config } from '../config.js'
 import { getPRs, isBot } from './prs.js'
+import { getSecurityAlerts } from './dependencies/index.js'
 
 let lastSentAt = null
+let lastSecuritySentAt = null
 
 export function wasAlreadySentThisHour() {
   if (!lastSentAt) return false
   return Date.now() - lastSentAt.getTime() < 3_600_000
+}
+
+export function wasSecurityAlreadySentThisHour() {
+  if (!lastSecuritySentAt) return false
+  return Date.now() - lastSecuritySentAt.getTime() < 3_600_000
 }
 
 function ageText(date) {
@@ -147,5 +154,89 @@ export async function sendSlackSummary() {
   if (!result.ok) throw new Error(`Slack API error: ${result.error}`)
 
   lastSentAt = new Date()
+  return result
+}
+
+const SEVERITY_EMOJI = { critical: '🔴', high: '🟠', medium: '🟡', low: '🔵' }
+const SEVERITY_ORDER = ['critical', 'high', 'medium', 'low']
+const SEVERITY_LABELS = { critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }
+
+export function buildSecuritySlackBlocks() {
+  const { alerts, alertCount, fetchedAt } = getSecurityAlerts()
+
+  const dateStr = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/London',
+    weekday: 'short', day: 'numeric', month: 'short', year: 'numeric',
+  }).format(new Date())
+
+  const blocks = []
+
+  blocks.push({
+    type: 'header',
+    text: { type: 'plain_text', text: `Security Alerts — ${dateStr}`, emoji: true },
+  })
+
+  if (alertCount === 0) {
+    blocks.push({
+      type: 'section',
+      text: { type: 'mrkdwn', text: '✅ No open Dependabot vulnerability alerts.' },
+    })
+  } else {
+    const counts = Object.fromEntries(SEVERITY_ORDER.map((s) => [s, 0]))
+    for (const alert of alerts) {
+      if (counts[alert.severity] !== undefined) counts[alert.severity]++
+    }
+
+    const summaryLine = `*${alertCount} open vulnerability alert${alertCount !== 1 ? 's' : ''}* across team repositories.`
+    const severityLines = SEVERITY_ORDER
+      .filter((s) => counts[s] > 0)
+      .map((s) => `${SEVERITY_EMOJI[s]} ${SEVERITY_LABELS[s]} — ${counts[s]}`)
+
+    blocks.push({
+      type: 'section',
+      text: { type: 'mrkdwn', text: [summaryLine, ...severityLines].join('\n') },
+    })
+  }
+
+  const fetchedNote = fetchedAt
+    ? `data from ${new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', hour: '2-digit', minute: '2-digit' }).format(fetchedAt)}`
+    : 'cache not warmed'
+
+  const securityLink = config.appUrl
+    ? `<${config.appUrl}/security|Security dashboard> · `
+    : ''
+  blocks.push({
+    type: 'context',
+    elements: [{ type: 'mrkdwn', text: `${securityLink}${fetchedNote}` }],
+  })
+
+  const fallbackSuffix = config.appUrl ? ` ${config.appUrl}/security` : ''
+  const fallbackText = alertCount === 0
+    ? `Security Alerts — ${dateStr}: no open alerts.`
+    : `Security Alerts — ${dateStr}: ${alertCount} open alert${alertCount !== 1 ? 's' : ''}.${fallbackSuffix}`
+
+  return { blocks, text: fallbackText }
+}
+
+export async function sendSecuritySlackSummary() {
+  if (!config.slackBotToken || !config.slackChannelId) {
+    throw new Error('SLACK_BOT_TOKEN or SLACK_CHANNEL_ID not configured')
+  }
+
+  const { blocks, text } = buildSecuritySlackBlocks()
+
+  const response = await fetch('https://slack.com/api/chat.postMessage', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      Authorization: `Bearer ${config.slackBotToken}`,
+    },
+    body: JSON.stringify({ channel: config.slackChannelId, text, blocks }),
+  })
+
+  const result = await response.json()
+  if (!result.ok) throw new Error(`Slack API error: ${result.error}`)
+
+  lastSecuritySentAt = new Date()
   return result
 }

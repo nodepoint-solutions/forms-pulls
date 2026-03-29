@@ -13,6 +13,7 @@ import draftsRoute from '../routes/drafts.js'
 import securityRoute from '../routes/security.js'
 import refreshRoute from '../routes/refresh.js'
 import slackSummaryRoute from '../routes/slack-summary.js'
+import securitySlackSummaryRoute from '../routes/security-slack-summary.js'
 import aboutRoute from '../routes/about.js'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
@@ -29,6 +30,6 @@ export default {
       handler: { directory: { path: publicPath } },
     })
 
-    server.route([indexRoute, allRoute, staleRoute, unreviewedRoute, needsReReviewRoute, needsMergingRoute, dependenciesRoute, draftsRoute, securityRoute, refreshRoute, slackSummaryRoute, aboutRoute])
+    server.route([indexRoute, allRoute, staleRoute, unreviewedRoute, needsReReviewRoute, needsMergingRoute, dependenciesRoute, draftsRoute, securityRoute, refreshRoute, slackSummaryRoute, securitySlackSummaryRoute, aboutRoute])
   },
 }
