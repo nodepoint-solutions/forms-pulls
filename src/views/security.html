@@ -54,6 +54,7 @@
             <thead>
               <tr>
                 <th>Package</th>
+                <th>Repo</th>
                 <th>Severity</th>
                 <th>Advisory</th>
                 <th>ID</th>
@@ -64,6 +65,7 @@
               {% for alert in group.alerts %}
               <tr>
                 <td class="app-mono">{{ alert.package }}</td>
+                <td class="app-mono">{{ alert.repo }}</td>
                 <td>
                   {% if alert.severity == 'critical' %}
                     <span class="app-pill app-pill--red">Critical</span>
