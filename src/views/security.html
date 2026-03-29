@@ -22,11 +22,18 @@
       <strong>{{ alertCount }} open vulnerability alert{{ "s" if alertCount != 1 }}</strong> across team repositories.
     </div>
 
-    <div class="app-group-toggle">
-      <span>Group by:</span>
-      <a href="/security?groupBy=severity" class="{{ 'is-active' if groupBy == 'severity' }}">Severity</a>
-      <a href="/security?groupBy=repo" class="{{ 'is-active' if groupBy == 'repo' }}">Repository</a>
-    </div>
+    <form method="GET" action="/security" class="app-filters">
+      <div class="app-filter-field">
+        <label class="app-filter-label" for="groupBy">Group by</label>
+        <select id="groupBy" name="groupBy" class="app-select">
+          <option value="severity"{% if groupBy == 'severity' %} selected{% endif %}>Severity</option>
+          <option value="repo"{% if groupBy == 'repo' %} selected{% endif %}>Repository</option>
+        </select>
+      </div>
+      <div class="app-filter-actions">
+        <button type="submit" class="app-btn app-btn--primary">Apply</button>
+      </div>
+    </form>
 
     {% for group in alertGroups %}
       <div class="app-group">
