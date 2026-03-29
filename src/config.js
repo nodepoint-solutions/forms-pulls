@@ -10,6 +10,8 @@ const {
   NODE_ENV = 'production',
   SLACK_BOT_TOKEN,
   SLACK_CHANNEL_ID,
+  SLACK_PR_DAYS,
+  SLACK_SECURITY_DAYS,
   TRACKED_DEPENDENCIES = '',
   REQUIRED_TEAM_ROLE = 'admin',
 } = process.env
@@ -46,6 +48,15 @@ function parseTrackedDeps(raw) {
     .filter(Boolean)
 }
 
+function parseDays(raw, defaults) {
+  if (raw === undefined) return new Set(defaults)
+  return new Set(
+    raw.split(',')
+      .map((s) => parseInt(s.trim(), 10))
+      .filter((n) => Number.isInteger(n) && n >= 0 && n <= 6)
+  )
+}
+
 export const config = {
   port: parseInt(PORT, 10),
   githubToken: GITHUB_TOKEN,
@@ -59,6 +70,8 @@ export const config = {
   isDevelopment: NODE_ENV === 'development',
   slackBotToken: SLACK_BOT_TOKEN ?? null,
   slackChannelId: SLACK_CHANNEL_ID ?? null,
+  slackPrDays: parseDays(SLACK_PR_DAYS, [1, 2, 3, 4, 5]),
+  slackSecurityDays: parseDays(SLACK_SECURITY_DAYS, [1]),
   trackedDependencies: parseTrackedDeps(TRACKED_DEPENDENCIES),
   requiredTeamRole: REQUIRED_TEAM_ROLE,
 }

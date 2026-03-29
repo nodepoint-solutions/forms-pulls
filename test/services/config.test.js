@@ -108,4 +108,40 @@ describe('config', () => {
       { ecosystem: 'npm', packageName: 'hapi' },
     ])
   })
+
+  it('defaults slackPrDays to Mon–Fri when SLACK_PR_DAYS is unset', async () => {
+    delete process.env.SLACK_PR_DAYS
+    const { config } = await import('../../src/config.js?v=' + Math.random())
+    expect(config.slackPrDays).toEqual(new Set([1, 2, 3, 4, 5]))
+  })
+
+  it('parses SLACK_PR_DAYS into a Set of day numbers', async () => {
+    process.env.SLACK_PR_DAYS = '0,6'
+    const { config } = await import('../../src/config.js?v=' + Math.random())
+    expect(config.slackPrDays).toEqual(new Set([0, 6]))
+  })
+
+  it('returns an empty Set when SLACK_PR_DAYS is an empty string', async () => {
+    process.env.SLACK_PR_DAYS = ''
+    const { config } = await import('../../src/config.js?v=' + Math.random())
+    expect(config.slackPrDays).toEqual(new Set())
+  })
+
+  it('drops non-numeric and out-of-range values from SLACK_PR_DAYS', async () => {
+    process.env.SLACK_PR_DAYS = '1,abc,7,-1,5'
+    const { config } = await import('../../src/config.js?v=' + Math.random())
+    expect(config.slackPrDays).toEqual(new Set([1, 5]))
+  })
+
+  it('defaults slackSecurityDays to Monday when SLACK_SECURITY_DAYS is unset', async () => {
+    delete process.env.SLACK_SECURITY_DAYS
+    const { config } = await import('../../src/config.js?v=' + Math.random())
+    expect(config.slackSecurityDays).toEqual(new Set([1]))
+  })
+
+  it('parses SLACK_SECURITY_DAYS into a Set of day numbers', async () => {
+    process.env.SLACK_SECURITY_DAYS = '1,4'
+    const { config } = await import('../../src/config.js?v=' + Math.random())
+    expect(config.slackSecurityDays).toEqual(new Set([1, 4]))
+  })
 })
