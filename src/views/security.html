@@ -1,18 +1,6 @@
 {% extends "layout.html" %}
 
 {% block content %}
-  <div class="app-page-header">
-    <p class="app-page-header__caption">{{ org }} / {{ team }} team</p>
-    <h1 class="app-page-header__title">{{ title }}</h1>
-    <p class="app-page-header__desc">Open Dependabot vulnerability alerts across team repositories.</p>
-    <p class="app-page-header__meta">
-      Last updated {{ fetchedAtFormatted }} —
-      <form method="POST" action="/refresh" style="display:inline">
-        <button class="app-refresh-btn">Refresh</button>
-      </form>
-    </p>
-  </div>
-
   {% if slackStatus == 'sent' %}
     <div class="app-alert app-alert--success" style="margin-bottom: 1rem">Slack security summary sent.</div>
   {% elif slackStatus == 'cooldown' %}

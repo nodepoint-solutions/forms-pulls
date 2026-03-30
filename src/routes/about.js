@@ -8,7 +8,7 @@ export default {
   handler(request, h) {
     const prData = getPRs()
     return h.view('about', {
-      title: 'About',
+      title: 'About this tool',
       currentPath: '/about',
       navCounts: buildNavCounts(prData),
       fetchedAt: prData.fetchedAt,

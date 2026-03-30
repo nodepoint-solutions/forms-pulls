@@ -1,6 +1,6 @@
 import { getPRs } from '../services/prs.js'
 import { getDependencies } from '../services/dependencies/index.js'
-import { buildNavCounts, formatAge } from './helpers.js'
+import { buildNavCounts, formatAge, formatNextUpdate } from './helpers.js'
 import { config } from '../config.js'
 
 export default {
@@ -33,12 +33,14 @@ export default {
 
     return h.view('dependencies', {
       title: 'Dependency Drift',
+      description: 'Dependency versions across all team repos, compared to the latest published release.',
       currentPath: '/dependencies',
       navCounts: buildNavCounts(prData),
       fetchedAt: prData.fetchedAt,
       org: config.org,
       team: config.team,
       fetchedAtFormatted: formatAge(depData.fetchedAt),
+      nextUpdateFormatted: formatNextUpdate(prData.fetchedAt),
       trackedDependencies: depData.trackedDependencies,
       driftCount: depData.driftCount,
       depsView,

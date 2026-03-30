@@ -98,6 +98,12 @@ export function groupByField(prs, field) {
   return [...groups.keys()].sort().map((key) => ({ label: key, prs: groups.get(key) }))
 }
 
+export function formatNextUpdate(fetchedAt) {
+  const nextUpdateMs = new Date(fetchedAt).getTime() + config.cacheTtlMs - Date.now()
+  const minutes = Math.max(0, Math.ceil(nextUpdateMs / 60_000))
+  return `${minutes} minute${minutes !== 1 ? 's' : ''}`
+}
+
 export function buildViewContext(data, basePRs, prs, query, currentPath, title, description, cooldown = false, slackStatus = null, slackEnabled = false) {
   const repos = buildSelectOptions(basePRs, 'repo')
   const authors = buildSelectOptions(basePRs, 'author')
@@ -129,6 +135,7 @@ export function buildViewContext(data, basePRs, prs, query, currentPath, title, 
     query,
     fetchedAt: data.fetchedAt,
     fetchedAtFormatted: formatAge(data.fetchedAt),
+    nextUpdateFormatted: formatNextUpdate(data.fetchedAt),
     navCounts: buildNavCounts(data),
     currentPath,
     cooldown,

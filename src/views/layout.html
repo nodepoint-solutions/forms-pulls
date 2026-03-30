@@ -185,6 +185,14 @@
       {% endif %}
 
       <main id="main-content" class="app-main">
+        <div class="app-page-header">
+          <p class="app-page-header__caption">{{ org }} / {{ team }} team</p>
+          <h1 class="app-page-header__title">{{ title }}</h1>
+          {% if description %}<p class="app-page-header__desc">{{ description }}</p>{% endif %}
+          {% if nextUpdateFormatted %}
+            <p class="app-page-header__meta">Last updated {{ fetchedAtFormatted }}. Next update in {{ nextUpdateFormatted }}.</p>
+          {% endif %}
+        </div>
         {% block content %}{% endblock %}
       </main>
     </div>

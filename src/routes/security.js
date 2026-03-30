@@ -1,6 +1,6 @@
 import { getPRs } from '../services/prs.js'
 import { getSecurityAlerts } from '../services/dependencies/index.js'
-import { buildNavCounts, formatAge } from './helpers.js'
+import { buildNavCounts, formatAge, formatNextUpdate } from './helpers.js'
 import { config } from '../config.js'
 
 const SEVERITY_ORDER = ['critical', 'high', 'medium', 'low']
@@ -48,11 +48,13 @@ export default {
 
     return h.view('security', {
       title: 'Security',
+      description: 'Open Dependabot vulnerability alerts across team repositories.',
       currentPath: '/security',
       navCounts: buildNavCounts(prData),
       alertCount,
       fetchedAt: prData.fetchedAt,
       fetchedAtFormatted: fetchedAt ? formatAge(fetchedAt) : '—',
+      nextUpdateFormatted: formatNextUpdate(prData.fetchedAt),
       alertGroups,
       groupBy,
       slackEnabled,

@@ -1,18 +1,6 @@
 {% extends "layout.html" %}
 
 {% block content %}
-  <div class="app-page-header">
-    <p class="app-page-header__caption">{{ org }} / {{ team }} team</p>
-    <h1 class="app-page-header__title">{{ title }}</h1>
-    <p class="app-page-header__desc">Dependency versions across all team repos, compared to the latest published release.</p>
-    <p class="app-page-header__meta">
-      Last updated {{ fetchedAtFormatted }} —
-      <form method="POST" action="/refresh" style="display:inline">
-        <button class="app-refresh-btn">Refresh</button>
-      </form>
-    </p>
-  </div>
-
   {% if not trackedDependencies.length %}
     <div class="app-alert app-alert--info">
       No dependencies configured — set <code>TRACKED_DEPENDENCIES</code> in your environment (e.g. <code>npm:govuk-frontend,npm:hapi</code>).
